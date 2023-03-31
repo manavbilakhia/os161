@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 1. In C, what is the propose of header files, like those found in os161/src/kern/include/?
 
 Header files are used to declare function prototypes, and data type definitions that are used in the source code of a program. For example, in the types.h header file contains 
@@ -37,4 +35,4 @@ Apart from making ney systemcall files in src/kern/syscall for them which would 
 -vm folder: it has all the files that are related to virtual memory
 -syscall folder: it has all the currently implemented syscalls such as time and run_program
 -arch folder: it has all the files C and MIPS that are related to the architecture of the kernel
->>>>>>> 1f5cf3ad51317a6dbb964055709ce7fddfabb47f
+
