@@ -1,0 +1,40 @@
+<<<<<<< HEAD
+=======
+1. In C, what is the propose of header files, like those found in os161/src/kern/include/?
+
+Header files are used to declare function prototypes, and data type definitions that are used in the source code of a program. For example, in the types.h header file contains 
+basic data types used in the OS/161 kernel, such as "int32_t".
+
+2. Which file contains MIPS assembly code for booting the kernel? (Hint: Its where the debugger starts.)  Why is it written in assembly rather than C?
+
+The file that contains MIPS assembly code for booting the kernel is os161-bilakhim-proj1/src/kern/arch/sys161/main/start.S. It is written in assembly rather than C because 
+the C compiler is not yet initialized. The code in this file is in assembly as assembly gives us better control over where the boot stack is located, and how the kernel is 
+initialized.
+
+3. What data structures and utility functions have been implemented in os161/src/kern/lib/ for your use?
+
+The data structures and utility functions that have been implemented in os161/src/kern/lib/ for our use are:
+- array.c
+- bitmap.c
+- bswap.c
+- misc.c 
+and more files that are in that folder.
+
+4. What are three system calls that OS/161 supports, but that are not yet implemented?  Where can documentation for these calls be found in OS/161?  If you were going to add a 
+brand new system call to OS/161 which files would have to be changed?
+
+Three system calls that OS/161 supports, but that are not yet implemented are:
+The documentation can be found in the os161-bilakhim-proj1/src/man/syscall
+- execv
+- open
+- read
+
+Apart from making ney systemcall files in src/kern/syscall for them which would describe the call beahviour, we would also have to change the syscall.h and syscall.c dispatcher files
+
+5. Pick five of the directories in os161/src/kern/.  For each, write a sentence giving a high-level description of the purpose of the code in that directory.
+-lib folder: it has all the data structures and utility functions for our use
+-include folder: it has all the header files that are used in the source code of a program
+-vm folder: it has all the files that are related to virtual memory
+-syscall folder: it has all the currently implemented syscalls such as time and run_program
+-arch folder: it has all the files C and MIPS that are related to the architecture of the kernel
+>>>>>>> 1f5cf3ad51317a6dbb964055709ce7fddfabb47f
