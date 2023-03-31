@@ -1,5 +1,0 @@
-In C, what is the propose of header files, like those found in os161/src/kern/include/?
-Which file contains MIPS assembly code for booting the kernel? (Hint: Its where the debugger starts.)  Why is it written in assembly rather than C?
-What data structures and utility functions have been implemented in os161/src/kern/lib/ for your use?
-What are three system calls that OS/161 supports, but that are not yet implemented?  Where can documentation for these calls be found in OS/161?  If you were going to add a brand new system call to OS/161 which files would have to be changed?
-Pick five of the directories in os161/src/kern/.  For each, write a sentence giving a high-level description of the purpose of the code in that directory.
