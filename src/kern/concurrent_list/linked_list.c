@@ -57,10 +57,10 @@ void linked_list_printlist(Linked_List *list, int which)
 }
 void linked_list_insert(Linked_List *list, int key, void *data)
 {
-  Linked_List_Node *newnode = linnked_list_create_node(key, data);
+  Linked_List_Node *newnode = linked_list_create_node(key, data);
   Linked_List_Node *runner = list -> first;
 
-  while (runner != Null && runner -> key < key)
+  while (runner != NULL && runner -> key < key)
   {
     runner = runner->next;
   }
@@ -86,7 +86,7 @@ void linked_list_insert(Linked_List *list, int key, void *data)
     }
     runner -> prev = newnode;
   }
-  list->length++
+  list->length++;
 }
 void *linked_list_remove_head(Linked_List *list, int *key)
 {
@@ -102,7 +102,7 @@ void *linked_list_remove_head(Linked_List *list, int *key)
  if (list ->first == list->last) //only one node in the list
  {
   list->first = NULL;
-  lisrt->last = NULL;
+  list->last = NULL;
  }
  else
  {
@@ -110,7 +110,7 @@ void *linked_list_remove_head(Linked_List *list, int *key)
   list->first->prev = NULL;
  }
 
- kfree (oldhead) //frees the previously allocated memory; takes in the pointer returned by kmalloc
+ kfree (oldhead); //frees the previously allocated memory; takes in the pointer returned by kmalloc
 
  list->length--;
 
