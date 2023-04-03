@@ -90,5 +90,29 @@ void linked_list_insert(Linked_List *list, int key, void *data)
 }
 void *linked_list_remove_head(Linked_List *list, int *key)
 {
-  
+ if(list->first == NULL)
+ {
+  *key = -1;
+  return NULL;
+ } 
+ Linked_List_Node *oldhead = list->first;
+ void *data = oldhead->data;
+ *key = oldhead->key;
+
+ if (list ->first == list->last) //only one node in the list
+ {
+  list->first = NULL;
+  lisrt->last = NULL;
+ }
+ else
+ {
+  list->first = oldhead->next;
+  list->first->prev = NULL;
+ }
+
+ kfree (oldhead) //frees the previously allocated memory; takes in the pointer returned by kmalloc
+
+ list->length--;
+
+ return data; 
 }
