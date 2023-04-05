@@ -57,36 +57,45 @@ void linked_list_printlist(Linked_List *list, int which)
 }
 void linked_list_insert(Linked_List *list, int key, void *data)
 {
-  Linked_List_Node *newnode = linked_list_create_node(key, data);
-  Linked_List_Node *runner = list -> first;
+  Linked_List_Node *newnode = linked_list_create_node(key,data);
+  Linked_List_Node *runner;
 
-  while (runner != NULL && runner -> key < key)
+  if (list->first == NULL)
   {
-    runner = runner->next;
-  }
-  if (runner == NULL) // inserting it at the end
-  {
-    newnode->prev = list->last;
-    list ->last->next = newnode;
+    list->first = newnode;
     list->last = newnode;
   }
-  else // inserts before the runner
+  else
   {
-    newnode ->next = runner;
-    newnode -> prev = runner->prev;
-
-    if (runner->prev ==NULL)
+    runner = list->first;
+    while (runner != NULL && runner -> key < key)
     {
-      list->first = newnode;
-
+      runner = runner->next;
     }
-    else
+    if (runner == NULL) // inserting it at the end
     {
-      runner->prev ->next = newnode;
+      newnode->prev = list->last;
+      list ->last->next = newnode;
+      list->last = newnode;
     }
-    runner -> prev = newnode;
+    else // inserts before the runner
+    {
+      newnode -> prev = runner->prev;
+      newnode ->next = runner;
+
+      if (runner->prev ==NULL)
+      {
+        list->first = newnode;
+
+      }
+      else
+      {
+        runner->prev ->next = newnode;
+      }
+      runner -> prev = newnode;
+    }
   }
-  list->length++;
+    list->length++;
 }
 void *linked_list_remove_head(Linked_List *list, int *key)
 {

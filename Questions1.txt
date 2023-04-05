@@ -1,6 +1,6 @@
 1. In C, what is the propose of header files, like those found in os161/src/kern/include/?
 
-Header files are used to declare function prototypes, and data type definitions that are used in the source code of a program. For example, in the types.h header file contains 
+Header files are used to declare function prototypes, and data type definitions that are used in the source code of a program. For example, the  types.h header file contains 
 basic data types used in the OS/161 kernel, such as "int32_t".
 
 2. Which file contains MIPS assembly code for booting the kernel? (Hint: Its where the debugger starts.)  Why is it written in assembly rather than C?
@@ -22,11 +22,11 @@ and more files that are in that folder.
 brand new system call to OS/161 which files would have to be changed?
 
 Three system calls that OS/161 supports, but that are not yet implemented are:
-The documentation can be found in the os161-bilakhim-proj1/src/man/syscall
-- execv
+- write
 - open
 - read
 
+The documentation can be found in the os161-bilakhim-proj1/src/man/syscall
 Apart from making ney systemcall files in src/kern/syscall for them which would describe the call beahviour, we would also have to change the syscall.h and syscall.c dispatcher files
 
 5. Pick five of the directories in os161/src/kern/.  For each, write a sentence giving a high-level description of the purpose of the code in that directory.

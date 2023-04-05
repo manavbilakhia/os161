@@ -1,0 +1,20 @@
+What is the type of data in the Linked_List_Node struct?  Explain.
+The data stored in Linked_List_Node struct is a combination of an integer and a void pointer that can point to any point of data.
+
+Explain the line typedef struct Linked_List Linked_List in linked_list.h.
+This line defines a new type called Linked_List. This is synonymous to making a classs in java. 
+
+What does the function kmalloc used in linked_list.c do?  How do you do the analogous thing in Java?
+kmalloc allocates memory for the linkedlist in linked_list.c. 
+In java this can be achieved with the new keyword. 
+
+Boot the kernel and use the menu to figure out how to run the linked list test found in linked_list_test.c.   Run it.  Look at the source code for the kernel menu.  Trace the code between the point where the user enters the appropriate command in the menu and the point at which the test starts to run.  Give a brief description of this process.
+the first commanfd entered is "?" which triggers the main menu options to be displkayed. 
+Then, the next command is given as input "?t" this opens the testing menu. 
+The next command is given as input is llt. This triggers the if statement on line 760 from where the OS knows that It must run the linked_list_test_run.c file in concurrent_list.
+The code seems to be structured lika a java equivalent of switch statement
+ 
+
+What does splhigh() do? Why is it called at the beginning of the two linked list test threads?  Try commenting it out, then rebuild and install the kernel, and then run the test again.  What happens?  You'll explore this further in the next project.
+splhigh() makes sure that the linked list is not modified by multiple threads at the same time. 
+If we comment this out then we see the linked list being modified by multiple threads at the same time.
