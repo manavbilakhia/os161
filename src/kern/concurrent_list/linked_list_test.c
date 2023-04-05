@@ -21,17 +21,17 @@ static void linked_list_test_adder(void *list, unsigned long which)
 
 static void linked_list_test_insert(void *list, unsigned long which)
 {
-  //splhigh();
+  splhigh();
   int i;
   int *c;
 
-  int arr[] = {24,8,16,4,32};
+  int key[] = {2,0,6,3,1,5,4}; //array of keys
 
-  for (i = 0; i < 5; i++) 
+  for (i = 0; i < 7; i++) 
   {
     c = kmalloc(sizeof(int));
     *c = 'A' + i;
-    linked_list_insert(list, arr[i], c);
+    linked_list_insert(list, key[i], c);
     linked_list_printlist(list, which);
   }
 }
@@ -61,7 +61,13 @@ int linked_list_test_run(int nargs, char **args)
 	      2);
   
   Linked_List *list2 = linked_list_create();
-  linked_list_test_insert(list2, 3);
+
+  thread_fork("insert1",
+        NULL,
+        linked_list_test_insert,
+        list2,
+        3);
+  //linked_list_test_insert(list2, 3);
 
   // XXX - Bug - We're returning from this function without waiting
   // for these two threads to finish.  The execution of these
