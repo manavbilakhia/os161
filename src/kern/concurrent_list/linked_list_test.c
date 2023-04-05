@@ -35,6 +35,14 @@ static void linked_list_test_insert(void *list, unsigned long which)
     linked_list_printlist(list, which);
   }
 }
+static void linked_list_test_remove_head(void *list, unsigned long which)
+{
+  splhigh();
+  int key;
+  linked_list_remove_head(list, &key);
+  linked_list_printlist(list, which);
+
+}
 
 int linked_list_test_run(int nargs, char **args)
 {
@@ -67,7 +75,20 @@ int linked_list_test_run(int nargs, char **args)
         linked_list_test_insert,
         list2,
         3);
-  //linked_list_test_insert(list2, 3);
+  
+  Linked_List *list3 = linked_list_create();
+
+  thread_fork("remove1",
+        NULL,
+        linked_list_test_remove_head,
+        list2,
+        4);
+ 
+  thread_fork("remove1",
+        NULL,
+        linked_list_test_remove_head,
+        list3,
+        4);
 
   // XXX - Bug - We're returning from this function without waiting
   // for these two threads to finish.  The execution of these
