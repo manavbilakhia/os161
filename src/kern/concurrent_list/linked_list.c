@@ -99,6 +99,10 @@ void linked_list_insert(Linked_List *list, int key, void *data)
 }
 void *linked_list_remove_head(Linked_List *list, int *key)
 {
+  if (list->length == 0)
+  {
+    return NULL;
+  }
  if(list->first == NULL)
  {
   *key = -1;
