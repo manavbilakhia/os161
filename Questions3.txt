@@ -1,0 +1,89 @@
+1.  In Project 1 you noticed that when you removed the splhigh() call from the linked_list_test_adder() function the console output of the 
+threads interleaved to produce nonsensical output.  This is because kprintf is not currently thread safe.  
+
+Examine the code for kprintf. It uses two synchronization mechanisms for making its console output atomic -- what are they? 
+-> lock (mutex lock) and spinlock are the two synchronization mechanisms used in kprintf.
+
+Why might the kernel use two different mechanisms to protect console output?  
+-> Spinlock here is used for polled kprintfs and mutex locks are used for non polled  kprintf. non polled kprintf can be interrupted by other tasks which
+might lead to larger wait times. Hence using a spinlock would be highly inefficient here. On the other hand spinlocks for polled kprintfs are used for printing
+messages from the kernel which cannot be interrupted. Using a mutex lock here would just use extra resources 
+
+Which of the two synchronization mechanisms is the kernel using when the interleaved output is produced by running your thread tests? 
+Explain why, despite this, the output is still interleaving.  (You are going to fix this later.)
+-> Mutex locks are being used here. The  output is still interleaving because the lock has not been implemented completely and only code stubs are present. 
+
+2.  Identify two other subsystems of the kernel that use synchronization mechanisms.  For each of these subsystems:
+->proc.c subsystem:
+Briefly describe the purpose of the subsystem.
+->Create a fresh proc for use by runprogram.
+Which synchronization mechanisms do they use? 
+-> spinlocks
+For what purpose? 
+-> It is to lock the current process while it copies the current process' directory while making a new process. 
+Are these subsystems afflicted by the same problem as kprintf?
+-> WHile at both places, locks are used to have better synchronization, procs don't have the same problem as kprintfs. 
+Here locks are held while manipulating the pointers in the proc structure. 
+
+->menu.c subsystem
+Briefly describe the purpose of the subsystem.
+-> This subsystem basically is the kernel menu and the main command dispatcher
+Which synchronization mechanisms do they use? 
+-> mutex locks
+For what purpose? 
+-> it uses locks to prevent race conditions by creating an intentional deadlock on a sub thread which is in the opposite direction  of the main thread
+Are these subsystems afflicted by the same problem as kprintf?
+-> No menu.c is intentionally create a synchronization problem. kprintf tries to prevent  a deadlock.
+
+3.  Locate the implementation of semaphores in os161/src/kern/thread/synch.c.  Observe that they are implemented on top of wait channels and spinlocks.
+Locate the definition of the struct semaphore.  In prose, explain the purpose of each of its attributes.  
+-> sem_name: a pointer to a character array that contains the name of the semaphore, which can be useful for debugging and tracing purposes.
+sem_wchan: a pointer to a wait channel that is used to block threads that are waiting for the semaphore to become available.
+sem_lock: a spinlock that protects the critical sections of code that manipulate the semaphore.
+sem_count: an unsigned integer that represents the current count of the semaphore, indicating the number of resources that are currently available.
+What does volatile mean here?
+->  It means that the compiles is not allowed to make any assumptions about the value of sem_count
+In prose, explain the purpose of every line of the function sem_create().
+->sem_create(const char *name, unsigned initial_count) // This function creates a new semaphore with the given name and initial count.
+{
+	struct semaphore *sem; // Declare a pointer to a semaphore structure.
+
+	sem = kmalloc(sizeof(*sem)); // Allocate memory for the semaphore structure
+	if (sem == NULL) { // If the memory allocation fails, return NULL to indicate failure.
+		return NULL;
+	}
+
+	sem->sem_name = kstrdup(name); // Copy the name of the semaphore into the semaphore structure.
+	if (sem->sem_name == NULL) { // If the name cannot be copied, free the memory allocated for the semaphore and return NULL.
+		kfree(sem);
+		return NULL;
+	}
+
+	sem->sem_wchan = wchan_create(sem->sem_name); // Create a wait channel for the semaphore.
+	if (sem->sem_wchan == NULL) { // If the wait channel cannot be created, free the memory allocated for the semaphore and its name, and return NULL.
+		kfree(sem->sem_name);
+		kfree(sem);
+		return NULL; // Return a pointer to the semaphore structure.
+	}
+
+	spinlock_init(&sem->sem_lock); // Initialize the semaphore's spinlock.
+	sem->sem_count = initial_count; // Set the semaphore's count to the given initial count.
+
+	return sem;
+}
+In P, notice that the wait channel is locked before the spinlock is released.  Can this cause deadlock?  Explain why or why not.
+-> No, it cannot cause a deadlock. The wait channel puts the thread top sleep if semaphore is not available. The spinlock here protects them both. There isnt
+really a case where the wait channel is locked before the spinlock is released.
+
+4.  Locate the implementation of wait channels in OS/161.  Examine all the functions in this implementation
+Why are spinlocks used in the function that checks whether a wait channel is empty?
+-> spinlocks are used here to ensure the atomicity of the process.
+Which function is responsible for putting threads to sleep?  This function make an assumption about the state of the thread -- what is it?  
+This function also makes an important assumption about the state of the wait channel -- what is it?  
+(To determine this look at the places this function is called from and into the function it calls.)
+->wchan_sleep is responsible for putting threads to sleep on the wait_channel.
+THe assumption that it makes is that the associated lock is already held by the calling thread when it is called and the lock will be unlocked
+when the thread is sleeping
+Look at the implementation of spinlocks, wait channels and P() of semaphores.  During what portion of the code are interrupts disabled?
+-> interrupts are disabled between calls to spinlock_acquire and spinlock_release. This is because spinlocks disable interrupts to ensure that the lock is 
+held throughout the critical section. 
