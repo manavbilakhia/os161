@@ -14,7 +14,7 @@ Explain why, despite this, the output is still interleaving.  (You are going to 
 -> Mutex locks are being used here. The  output is still interleaving because the lock has not been implemented completely and only code stubs are present. 
 
 2.  Identify two other subsystems of the kernel that use synchronization mechanisms.  For each of these subsystems:
-->proc.c subsystem:
+->proc subsystem:
 Briefly describe the purpose of the subsystem.
 ->Create a fresh proc for use by runprogram.
 Which synchronization mechanisms do they use? 
@@ -25,7 +25,7 @@ Are these subsystems afflicted by the same problem as kprintf?
 -> WHile at both places, locks are used to have better synchronization, procs don't have the same problem as kprintfs. 
 Here locks are held while manipulating the pointers in the proc structure. 
 
-->menu.c subsystem
+->menu subsystem
 Briefly describe the purpose of the subsystem.
 -> This subsystem basically is the kernel menu and the main command dispatcher
 Which synchronization mechanisms do they use? 

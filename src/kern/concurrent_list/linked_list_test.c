@@ -17,6 +17,8 @@ static void linked_list_test_adder(void *list, unsigned long which)
     linked_list_prepend(list, c);
     linked_list_printlist(list, which);
   }
+  kprintf("final list from adder");
+  linked_list_printlist(list, which);
 }
 
 static void linked_list_test_insert(void *list, unsigned long which)
@@ -34,7 +36,10 @@ static void linked_list_test_insert(void *list, unsigned long which)
     linked_list_insert(list, key[i], c);
     linked_list_printlist(list, which);
   }
+  kprintf("final list from insert");
+  linked_list_printlist(list, which);
 }
+
 static void linked_list_test_remove_head(void *list, unsigned long which)
 {
   splhigh();
@@ -42,12 +47,12 @@ static void linked_list_test_remove_head(void *list, unsigned long which)
   linked_list_remove_head(list, &key);
   linked_list_printlist(list, which);
 
+  kprintf("final list from remove head");
+  linked_list_printlist(list, which);
 }
 
 int linked_list_test_run(int nargs, char **args)
 {
-  int testnum = 0;
-
   if (nargs == 2) {
     testnum = args[1][0] - '0'; // XXX - Hack - only works for testnum 0 -- 9
   }

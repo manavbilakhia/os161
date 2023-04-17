@@ -3,6 +3,7 @@
 
 #include <types.h>
 
+int testnum;
 typedef struct Linked_List_Node Linked_List_Node;
 
 struct Linked_List_Node {

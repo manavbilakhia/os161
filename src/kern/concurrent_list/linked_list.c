@@ -1,5 +1,6 @@
 #include <linked_list.h>
 #include <lib.h>
+#include <thread.h>
 
 Linked_List *linked_list_create(void)
 {
@@ -34,12 +35,18 @@ void linked_list_prepend(Linked_List *list, void *data)
   } else {
     newnode = linked_list_create_node(f -> key - 1, data);
 
+    if (testnum == 1)
+    {
+      thread_yield();
+    }
+
     newnode -> next = list -> first;
     f -> prev = newnode;
     list -> first = newnode;
   }
 
   list -> length ++;
+
 }
 
 void linked_list_printlist(Linked_List *list, int which)
@@ -54,6 +61,7 @@ void linked_list_printlist(Linked_List *list, int which)
   }
 
   kprintf("\n");
+
 }
 void linked_list_insert(Linked_List *list, int key, void *data)
 {
@@ -71,6 +79,10 @@ void linked_list_insert(Linked_List *list, int key, void *data)
     while (runner != NULL && runner -> key < key)
     {
       runner = runner->next;
+      if (testnum == 2)
+      {
+        thread_yield();
+      }
     }
     if (runner == NULL) // inserting it at the end
     {
@@ -93,6 +105,10 @@ void linked_list_insert(Linked_List *list, int key, void *data)
         runner->prev ->next = newnode;
       }
       runner -> prev = newnode;
+      if (testnum == 3)
+      {
+        thread_yield();
+      }
     }
   }
     list->length++;
@@ -121,9 +137,17 @@ void *linked_list_remove_head(Linked_List *list, int *key)
  {
   list->first = oldhead->next;
   list->first->prev = NULL;
+
+  if (testnum == 4)
+  {
+    thread_yield();
+  }
+
  }
 
+
  kfree (oldhead); //frees the previously allocated memory; takes in the pointer returned by kmalloc
+
 
  list->length--;
 
