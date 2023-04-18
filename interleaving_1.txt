@@ -1,6 +1,8 @@
 We put an yield statement in linkedlist_prepend() right after we determine that list -> first != NULL and create a new node.
 This causes adder 1 and adder 2 to be intreleaving such the result from adder 1 and 2 to have certain elements duplicated.
 
+This mainly results adder 3 to give up the thread to insert 3 until the thread is available again.
+
 We were expecting this to happen. 
 
 original output:
