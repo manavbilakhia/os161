@@ -15,7 +15,7 @@ static void linked_list_test_adder(void *list, unsigned long which)
     c = kmalloc(sizeof(int));
     *c = 'A' + i;
     linked_list_prepend(list, c);
-    linked_list_printlist(list, which);
+    //linked_list_printlist(list, which);
   }
   kprintf("final list from adder");
   linked_list_printlist(list, which);
@@ -34,7 +34,7 @@ static void linked_list_test_insert(void *list, unsigned long which)
     c = kmalloc(sizeof(int));
     *c = 'A' + i;
     linked_list_insert(list, key[i], c);
-    linked_list_printlist(list, which);
+    //linked_list_printlist(list, which);
   }
   kprintf("final list from insert");
   linked_list_printlist(list, which);
@@ -45,7 +45,7 @@ static void linked_list_test_remove_head(void *list, unsigned long which)
   splhigh();
   int key;
   linked_list_remove_head(list, &key);
-  linked_list_printlist(list, which);
+  //linked_list_printlist(list, which);
 
   kprintf("final list from remove head");
   linked_list_printlist(list, which);
@@ -89,11 +89,11 @@ int linked_list_test_run(int nargs, char **args)
         list2,
         4);
  
-  thread_fork("remove1",
+  thread_fork("remove2",
         NULL,
         linked_list_test_remove_head,
         list3,
-        4);
+        5);
 
   // XXX - Bug - We're returning from this function without waiting
   // for these two threads to finish.  The execution of these

@@ -1,0 +1,24 @@
+We add another yield statement between f -> prev = newnode and  list -> first = newnode in linked_list_prepend. I was expecting an output similar to\
+interleaving_1.txt but instead we see that half of the elements in adder 2 are gone when compared to the initial output. 
+
+original output:
+
+testnum: 0
+final list from adder1: -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+final list from insert3: 0[B] 1[E] 2[A] 3[D] 4[G] 5[F] 6[C] 
+final list from remove head5: 
+final list from adder2: -19[J] -18[I] -17[H] -16[G] -15[F] -14[E] -13[D] -12[C] -11[B] -10[A] -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+final list from remove head4: 1[E] 2[A] 3[D] 4[G] 5[F] 6[C] 
+peration took 0.022250040 seconds
+
+
+actual output:
+
+testnum: 4
+final list from insert3: 0[B] 1[E] 2[A] 3[D] 4[G] 5[F] 6[C] 
+final list from remove head5: 
+Ofinal list from remove head4: 1[E] 2[A] 3[D] 4[G] 5[F] 6[C] 
+final list from adder1: -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+final list from adder2: -11[J] -10[I] -9[H] -8[G] -7[F] -6[E] -5[D] -4[C] -3[B] -2[A] -1[B] 0[A] 
+peration took 0.022347680 seconds
+

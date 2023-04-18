@@ -1,0 +1,28 @@
+To cause this interleaving, we added the yield statement in the insert function inside a while loop which only runs when list->first != NULL and 
+runner != NULL && runner -> key < key.
+
+Here the interleaving caused the removal of the first element to happen before the entire list is created as we see compare the "final list from insert3"
+which in the original output has the entire list and "final list from remove head4" has the list without its first element whereas in the actual output, 
+it only has the second element.  
+
+in this one, insert 3 gives up the thread to remove head 4 leading to the entire order of operations executed is jumbled.
+
+original output:
+
+testnum: 0
+final list from adder1: -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+final list from insert3: 0[B] 1[E] 2[A] 3[D] 4[G] 5[F] 6[C] 
+final list from remove head5: 
+final list from adder2: -19[J] -18[I] -17[H] -16[G] -15[F] -14[E] -13[D] -12[C] -11[B] -10[A] -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+final list from remove head4: 1[E] 2[A] 3[D] 4[G] 5[F] 6[C] 
+peration took 0.022247920 seconds
+
+actual output:
+
+testnum: 2
+final list from adder1: -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+final list from remove head4: 2[A] 
+final list from adder2: -19[J] -18[I] -17[H] -16[G] -15[F] -14[E] -13[D] -12[C] -11[B] -10[A] -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+final list from remove head5: 
+final list from insert3: 1[E] 2[A] 3[D] 4[G] 5[F] 6[C] 
+peration took 0.022223680 seconds

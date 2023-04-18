@@ -42,6 +42,11 @@ void linked_list_prepend(Linked_List *list, void *data)
 
     newnode -> next = list -> first;
     f -> prev = newnode;
+
+      if (testnum == 4)
+  {
+    thread_yield();
+  }
     list -> first = newnode;
   }
 
@@ -92,6 +97,10 @@ void linked_list_insert(Linked_List *list, int key, void *data)
     }
     else // inserts before the runner
     {
+      if (testnum == 3)
+      {
+        thread_yield();
+      }
       newnode -> prev = runner->prev;
       newnode ->next = runner;
 
@@ -105,10 +114,6 @@ void linked_list_insert(Linked_List *list, int key, void *data)
         runner->prev ->next = newnode;
       }
       runner -> prev = newnode;
-      if (testnum == 3)
-      {
-        thread_yield();
-      }
     }
   }
     list->length++;
@@ -136,20 +141,17 @@ void *linked_list_remove_head(Linked_List *list, int *key)
  else
  {
   list->first = oldhead->next;
+
   list->first->prev = NULL;
-
-  if (testnum == 4)
-  {
-    thread_yield();
-  }
-
  }
 
 
  kfree (oldhead); //frees the previously allocated memory; takes in the pointer returned by kmalloc
-
-
  list->length--;
 
+if (testnum == 4)
+  {
+    thread_yield();
+  }
  return data; 
 }

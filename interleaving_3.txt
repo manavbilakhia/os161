@@ -1,0 +1,27 @@
+This was caused by adding a yield statement in the else statement which deals with the case where the node is inserted before the runner. 
+
+I was not expecting the kernel to go into panic mode. I was expecting to have different ordering in with the adder. 
+
+original output:
+
+testnum: 0
+final list from adder1: -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+final list from insert3: 0[B] 1[E] 2[A] 3[D] 4[G] 5[F] 6[C] 
+final list from remove head5: 
+final list from adder2: -19[J] -18[I] -17[H] -16[G] -15[F] -14[E] -13[D] -12[C] -11[B] -10[A] -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+final list from remove head4: 1[E] 2[A] 3[D] 4[G] 5[F] 6[C] 
+peration took 0.022247920 seconds
+
+actual output:
+
+testnum: 3
+final list from adder1: -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+final list from remove head4: 
+Ofinal list from adder2: -19[J] -18[I] -17[H] -16[G] -15[F] -14[E] -13[D] -12[C] -11[B] -10[A] -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+panic: Fatal exception 5 (Address error on store) in kernel mode
+panic: EPC 0x8000392c, exception vaddr 0x45
+panic: I can't handle this... I think I'll just die now...
+sys161: trace: software-requested debugger stop
+sys161: Waiting for debugger connection...
+
+
