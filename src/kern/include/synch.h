@@ -76,6 +76,9 @@ struct lock {
         char *lk_name;
         HANGMAN_LOCKABLE(lk_hangman);   /* Deadlock detector hook. */
         // add what you need here
+        struct spinlock lk_spinlock; // spinklock to ensure atomicity
+        struct thread *lk_holder;  // thread that holds the lock
+        struct wchan *lk_wchan; //wait channel for threads to sleep
         // (don't forget to mark things volatile as needed)
 };
 
@@ -115,6 +118,7 @@ bool lock_do_i_hold(struct lock *);
 struct cv {
         char *cv_name;
         // add what you need here
+        struct wchan *cv_wchan; //wait channel for threads to sleep
         // (don't forget to mark things volatile as needed)
 };
 
