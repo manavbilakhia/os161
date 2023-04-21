@@ -119,6 +119,7 @@ struct cv {
         char *cv_name;
         // add what you need here
         struct wchan *cv_wchan; //wait channel for threads to sleep
+        struct spinlock cv_spinlock; // spinklock to ensure atomicity
         // (don't forget to mark things volatile as needed)
 };
 
