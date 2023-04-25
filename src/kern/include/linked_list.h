@@ -20,7 +20,7 @@ struct Linked_List {
   Linked_List_Node *first;
   Linked_List_Node *last;
   int length;
-  struct lock linkedlist_lock;
+  struct lock *linkedlist_lock;
 };
 
 Linked_List *linked_list_create(void);

@@ -9,6 +9,7 @@ Linked_List *linked_list_create(void)
   ptr -> length = 0;
   ptr -> first = NULL;
   ptr -> last = NULL;
+  ptr ->linkedlist_lock = lock_create("linkedlist_lock");
   return ptr;
 }
 
@@ -19,12 +20,12 @@ Linked_List_Node *linked_list_create_node(int key, void *data)
   newnode -> next = NULL;
   newnode -> key = key;
   newnode -> data = data;
-
   return newnode;
 }
 
 void linked_list_prepend(Linked_List *list, void *data)
 {
+  lock_acquire(list->linkedlist_lock);
   Linked_List_Node * newnode;
   Linked_List_Node * f = list -> first;
 
@@ -51,7 +52,7 @@ void linked_list_prepend(Linked_List *list, void *data)
   }
 
   list -> length ++;
-
+  lock_release(list->linkedlist_lock);
 }
 
 void linked_list_printlist(Linked_List *list, int which)
@@ -70,6 +71,7 @@ void linked_list_printlist(Linked_List *list, int which)
 }
 void linked_list_insert(Linked_List *list, int key, void *data)
 {
+  lock_acquire(list->linkedlist_lock);
   Linked_List_Node *newnode = linked_list_create_node(key,data);
   Linked_List_Node *runner;
 
@@ -117,9 +119,11 @@ void linked_list_insert(Linked_List *list, int key, void *data)
     }
   }
     list->length++;
+    lock_release(list->linkedlist_lock);
 }
 void *linked_list_remove_head(Linked_List *list, int *key)
 {
+  lock_acquire(list->linkedlist_lock);
   if (list->length == 0)
   {
     return NULL;
@@ -153,5 +157,6 @@ if (testnum == 4)
   {
     thread_yield();
   }
+lock_release(list->linkedlist_lock);
  return data; 
 }

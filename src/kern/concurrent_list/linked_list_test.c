@@ -4,9 +4,11 @@
 #include <spl.h>
 #include <test.h>
 
+static struct semaphore *test_sem;
+
 static void linked_list_test_adder(void *list, unsigned long which)
 {
-  splhigh();
+  //splhigh();
 
   int i;
   int *c;
@@ -19,11 +21,13 @@ static void linked_list_test_adder(void *list, unsigned long which)
   }
   kprintf("final list from adder");
   linked_list_printlist(list, which);
+
+  V(test_sem);
 }
 
 static void linked_list_test_insert(void *list, unsigned long which)
 {
-  splhigh();
+  //splhigh();
   int i;
   int *c;
 
@@ -38,21 +42,24 @@ static void linked_list_test_insert(void *list, unsigned long which)
   }
   kprintf("final list from insert");
   linked_list_printlist(list, which);
+    V(test_sem);
 }
 
 static void linked_list_test_remove_head(void *list, unsigned long which)
 {
-  splhigh();
+  //splhigh();
   int key;
   linked_list_remove_head(list, &key);
   //linked_list_printlist(list, which);
 
   kprintf("final list from remove head");
   linked_list_printlist(list, which);
+    V(test_sem);
 }
 
 int linked_list_test_run(int nargs, char **args)
-{
+{ 
+  test_sem = sem_create("test_sem", 0);
   if (nargs == 2) {
     testnum = args[1][0] - '0'; // XXX - Hack - only works for testnum 0 -- 9
   }
@@ -102,6 +109,10 @@ int linked_list_test_run(int nargs, char **args)
   // problem for the moment until we learn how to fix in Project 2.
   // An enterprising student might investigate why this is not a
   // problem with other tests suites the kernel uses.
-
+  for (int i = 0; i<5; i++)
+  {
+    P(test_sem);
+  }
+  sem_destroy(test_sem);
   return 0;
 }

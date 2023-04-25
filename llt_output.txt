@@ -1,0 +1,79 @@
+Script started on 2023-04-25 17:54:09-04:00 [TERM="xterm-256color" TTY="/dev/pts/2" COLUMNS="203" LINES="53"]
+]0;bilakhim@tortellini: ~/CSC335/os161-proj1/root[01;32mbilakhim@tortellini[00m:[01;34m~/CSC335/os161-proj1/root[00m$ sys161 kernel
+sys161: System/161 release 2.0.8, compiled Jan  9 2017 17:17:19
+
+OS/161 base system version 2.0.3
+Copyright (c) 2000, 2001-2005, 2008-2011, 2013, 2014
+   President and Fellows of Harvard College.  All rights reserved.
+
+Put-your-group-name-here's system version 0 (PROJ2 #52)
+
+844k physical memory available
+Device probe...
+lamebus0 (system main bus)
+emu0 at lamebus0
+ltrace0 at lamebus0
+ltimer0 at lamebus0
+beep0 at ltimer0
+rtclock0 at ltimer0
+lrandom0 at lamebus0
+random0 at lrandom0
+lhd0 at lamebus0
+lhd1 at lamebus0
+lser0 at lamebus0
+con0 at lser0
+
+cpu0: MIPS/161 (System/161 2.x) features 0x0
+1 CPU online
+OS/161 kernel [? for menu]: llt
+testnum: 0
+final list from adder1: -19[J] -18[I] -17[H] -16[G] -15[F] -14[E] -13[D] -12[C] -11[B] -10[A] -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+final list from remove head4: 1[E] 2[A] 3[D] 4[G] 5[F] 6[C] 
+final list from insert3: 1[E] 2[A] 3[D] 4[G] 5[F] 6[C] 
+final list from remove head5: 
+final list from adder2: -19[J] -18[I] -17[H] -16[G] -15[F] -14[E] -13[D] -12[C] -11[B] -10[A] -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+Operation took 0.864067280 seconds
+OS/161 kernel [? for menu]: llt1  1
+testnum: 1
+final list from insert3: 1[E] 2[A] 3[D] 4[G] 5[F] 6[C] 
+final list from remove head4: 1[E] 2[A] 3[D] 4[G] 5[F] 6[C] 
+final list from adder2: -19[J] -18[I] -17[H] -16[G] -15[F] -14[E] -13[D] -12[C] -11[B] -10[A] -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+final list from remove head5: 
+final list from adder1: -19[J] -18[I] -17[H] -16[G] -15[F] -14[E] -13[D] -12[C] -11[B] -10[A] -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+Operation took 0.882059920 seconds
+OS/161 kernel [? for menu]: llt 2
+testnum: 2
+final list from adder1: -19[J] -18[I] -17[H] -16[G] -15[F] -14[E] -13[D] -12[C] -11[B] -10[A] -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+final list from insert3: 1[E] 2[A] 3[D] 4[G] 5[F] 6[C] 
+final list from remove head5: 
+final list from remove head4: 1[E] 2[A] 3[D] 4[G] 5[F] 6[C] 
+final list from adder2: -19[J] -18[I] -17[H] -16[G] -15[F] -14[E] -13[D] -12[C] -11[B] -10[A] -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+Operation took 0.880059920 seconds
+OS/161 kernel [? for menu]: llt 3
+testnum: 3
+final list from adder1: -19[J] -18[I] -17[H] -16[G] -15[F] -14[E] -13[D] -12[C] -11[B] -10[A] -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+final list from insert3: 1[E] 2[A] 3[D] 4[G] 5[F] 6[C] 
+final list from remove head5: 
+final list from adder2: -19[J] -18[I] -17[H] -16[G] -15[F] -14[E] -13[D] -12[C] -11[B] -10[A] -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+final list from remove head4: 1[E] 2[A] 3[D] 4[G] 5[F] 6[C] 
+Operation took 0.880062880 seconds
+OS/161 kernel [? for menu]: llt 4
+testnum: 4
+final list from insert3: 1[E] 2[A] 3[D] 4[G] 5[F] 6[C] 
+final list from remove head5: 
+final list from adder2: -19[J] final list from remove head4: 1[E] 2[A] 3[D] 4[G] 5[F] 6[C] 
+-18[I] -17[H] final list from adder1: -19[J] -18[I] -17[H] -16[G] -15[F] -14[E] -13[D] -12[C] -11[B] -10[A] -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+-16[G] -15[F] -14[E] -13[D] -12[C] -11[B] -10[A] -9[J] -8[I] -7[H] -6[G] -5[F] -4[E] -3[D] -2[C] -1[B] 0[A] 
+Operation took 0.884049160 seconds
+OS/161 kernel [? for menu]: exit
+Shutting down.
+The system is halted.
+sys161: 749105214 cycles (158825419 run, 590279795 global-idle)
+sys161:   cpu0: 12583684 kern, 0 user, 0 idle; 39328 ll, 39328/0 sc, 152274 sync
+sys161: 3361 irqs 0 exns 0r/0w disk 35r/3298w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 17.947623 seconds (41.7384 mhz)
+sys161: Elapsed virtual time: 24.118829487 seconds (25 mhz)
+]0;bilakhim@tortellini: ~/CSC335/os161-proj1/root[01;32mbilakhim@tortellini[00m:[01;34m~/CSC335/os161-proj1/root[00m$ exit
+exit
+
+Script done on 2023-04-25 17:54:45-04:00 [COMMAND_EXIT_CODE="0"]
