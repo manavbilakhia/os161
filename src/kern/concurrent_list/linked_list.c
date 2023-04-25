@@ -1,6 +1,7 @@
 #include <linked_list.h>
 #include <lib.h>
 #include <thread.h>
+#include <synch.h>
 
 Linked_List *linked_list_create(void)
 {
@@ -8,7 +9,6 @@ Linked_List *linked_list_create(void)
   ptr -> length = 0;
   ptr -> first = NULL;
   ptr -> last = NULL;
-
   return ptr;
 }
 
