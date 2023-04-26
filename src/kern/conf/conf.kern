@@ -468,3 +468,6 @@ optfile automationtest	test/automationtest.c
 defoption concurrent_list
 optfile   concurrent_list  concurrent_list/linked_list.c
 optfile   concurrent_list  concurrent_list/linked_list_test.c
+
+file        shared_buffer/shared_buffer.c
+file        shared_buffer/shared_buffer_test.c

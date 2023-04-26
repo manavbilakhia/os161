@@ -1,4 +1,4 @@
-# Kernel config file for Project 1 using dumbvm.
+# Kernel config file for Project 2 using dumbvm.
 # This should be used until you have your own VM system.
 
 include conf/conf.kern		# get definitions of available options
