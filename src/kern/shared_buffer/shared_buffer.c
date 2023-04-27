@@ -1,14 +1,16 @@
-// create 
-//destroy
-//write char
-//remove char
 #include <types.h>
+#include <lib.h>
+#include <thread.h>
 #include <synch.h>
 #include <shared_buffer.h>
 
+
+
+
 struct Shared_Buffer *shared_buffer_create(int buffersize)
 {
-    Shared_Buffer *buff = kmalloc(sizeof(Shared_Buffer));
+    struct Shared_Buffer *buff;
+    buff = kmalloc(sizeof(*buff));
     if (buff == NULL) {
         return NULL;
     }
@@ -52,7 +54,7 @@ shared_buffer_write(struct Shared_Buffer *buff, char c)
     lock_release(buff->buffer_lock);
 }
 
-void
+char
 shared_buffer_remove(struct Shared_Buffer *buff)
 {
     lock_acquire(buff->buffer_lock);

@@ -25,7 +25,7 @@ shared_buffer_destroy(struct Shared_Buffer *buff);
 void
 shared_buffer_write(struct Shared_Buffer *buff, char c);
 
-void
+char
 shared_buffer_remove(struct Shared_Buffer *buff);
 
 #endif

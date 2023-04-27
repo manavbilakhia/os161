@@ -44,6 +44,7 @@
 #include <syscall.h>
 #include <test.h>
 #include <prompt.h>
+//#include <shared_buffer.h>
 #include "opt-sfs.h"
 #include "opt-net.h"
 #include "opt-automationtest.h"
@@ -589,6 +590,7 @@ static const char *testmenu[] = {
 #if OPT_CONCURRENT_LIST
 	"[llt] Linked List Tests             ",
 #endif	
+	"[sbt] Shared Buffer tests"
 #if OPT_NET
 	"[net] Network test                  ",
 #endif
@@ -760,7 +762,7 @@ static struct {
 #if OPT_CONCURRENT_LIST
 	{ "llt", linked_list_test_run },
 #endif
-	
+	{ "sbt", shared_buffer_test_run },
 	/* semaphore unit tests */
 	{ "semu1",	semu1 },
 	{ "semu2",	semu2 },

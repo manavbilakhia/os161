@@ -127,6 +127,9 @@ void menu(char *argstr);
 /* The main function, called from start.S. */
 void kmain(char *bootstring);
 
+/*this is for Project 2, Testing the shared buffer*/
+int shared_buffer_test_run(int nargs, char **args);
+
 #if OPT_CONCURRENT_LIST
 /* This is used in the Linked List assignment Project 1, if OPT_CONCURRENT_LIST is set */
 int linked_list_test_run(int, char **);
