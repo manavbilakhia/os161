@@ -1,0 +1,110 @@
+Script started on 2023-04-26 22:00:17-04:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="80" LINES="24"]
+]0;bilakhim@lasagna: ~/CSC335/os161-proj1[01;32mbilakhim@lasagna[00m:[01;34m~/CSC335/os161-proj1[00m$ cd rot[Kot
+]0;bilakhim@lasagna: ~/CSC335/os161-proj1/root[01;32mbilakhim@lasagna[00m:[01;34m~/CSC335/os161-proj1/root[00m$ cd rootsys161 kernel[5Pcd root/sys161 kernel
+sys161: System/161 release 2.0.8, compiled Jan  9 2017 17:17:19
+
+OS/161 base system version 2.0.3
+Copyright (c) 2000, 2001-2005, 2008-2011, 2013, 2014
+   President and Fellows of Harvard College.  All rights reserved.
+
+Put-your-group-name-here's system version 0 (PROJ2 #61)
+
+840k physical memory available
+Device probe...
+lamebus0 (system main bus)
+emu0 at lamebus0
+ltrace0 at lamebus0
+ltimer0 at lamebus0
+beep0 at ltimer0
+rtclock0 at ltimer0
+lrandom0 at lamebus0
+random0 at lrandom0
+lhd0 at lamebus0
+lhd1 at lamebus0
+lser0 at lamebus0
+con0 at lser0
+
+cpu0: MIPS/161 (System/161 2.x) features 0x0
+1 CPU online
+OS/161 kernel [? for menu]: ?t
+
+OS/161 tests menu
+    [at]  Array test                    [cvt1] CV test 1             (1)    
+    [at2] Large array test              [cvt2] CV test 2             (1)    
+    [bt]  Bitmap test                   [cvt3] CV test 3             (1*)   
+    [tlt] Threadlist test               [cvt4] CV test 4             (1*)   
+    [km1] Kernel malloc test            [cvt5] CV test 5             (1)    
+    [km2] kmalloc stress test           [rwt1] RW lock test          (1?)   
+    [km3] Large kmalloc test            [rwt2] RW lock test 2        (1?)   
+    [km4] Multipage kmalloc test        [rwt3] RW lock test 3        (1?)   
+    [km5] kmalloc coremap alloc test    [rwt4] RW lock test 4        (1?)   
+    [tt1] Thread test 1                 [rwt5] RW lock test 5        (1?)   
+    [tt2] Thread test 2                 [semu1-22] Semaphore unit tests     
+    [tt3] Thread test 3                 [fs1] Filesystem test               
+    [llt] Linked List Tests             [fs2] FS read stress                
+    [sbt] Shared Buffer tests[sem1] Semaphore test               [fs3] FS write stress               
+    [lt1]  Lock test 1           (1)    [fs4] FS write stress 2             
+    [lt2]  Lock test 2           (1*)   [fs5] FS long stress                
+    [lt3]  Lock test 3           (1*)   [fs6] FS create stress              
+    [lt4]  Lock test 4           (1*)   [hm1] HMAC unit test                
+    [lt5]  Lock test 5           (1*)   
+
+    (1) These tests will fail until you finish the synch assignment.
+    (*) These tests will panic on success.
+    (?) These tests are left to you to implement.
+
+Operation took 3.055977360 seconds
+OS/161 kernel [? for menu]: sbt
+Producer 1 wrote: K
+Producer 1 wrote: L
+Producer 1 wrote: M
+Producer 1 wrote: N
+Producer 1 wrote: O
+Producer 1 wrote: P
+Consumer 2 read: U
+Consumer 2 read: L
+Consumer 2 read: M
+Consumer 2 read: N
+Consumer 2 read: O
+Consumer 2 read: P
+Consumer 2 read: Q
+Producer 1 wrote: Q
+Producer 1 wrote: R
+Producer 1 wrote: S
+Producer 1 wrote: T
+Consumer 2 read: R
+Consumer 2 read: S
+Consumer 2 read: T
+Producer 2 wrote: U
+Producer 2 wrote: V
+Producer 2 wrote: W
+Producer 2 wrote: X
+Producer 2 wrote: Y
+Producer 2 wrote: Z
+Consumer 1 read: K
+Consumer 1 read: V
+Consumer 1 read: W
+Consumer 1 read: X
+Consumer 1 read: Y
+Consumer 1 read: Z
+Consumer 1 read: A
+Producer 2 wrote: A
+Producer 2 wrote: B
+Producer 2 wrote: C
+Producer 2 wrote: D
+Consumer 1 read: B
+Consumer 1 read: C
+Consumer 1 read: D
+Operation took 1.426232600 seconds
+OS/161 kernel [? for menu]: exit
+Shutting down.
+The system is halted.
+sys161: 679523689 cycles (147976154 run, 531547535 global-idle)
+sys161:   cpu0: 11107392 kern, 0 user, 0 idle; 35438 ll, 35438/0 sc, 143529 sync
+sys161: 3200 irqs 0 exns 0r/0w disk 12r/3164w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 15.916009 seconds (42.6944 mhz)
+sys161: Elapsed virtual time: 21.710486999 seconds (25 mhz)
+]0;bilakhim@lasagna: ~/CSC335/os161-proj1/root[01;32mbilakhim@lasagna[00m:[01;34m~/CSC335/os161-proj1/root[00m$ exit
+exit
+
+Script done on 2023-04-26 22:00:50-04:00 [COMMAND_EXIT_CODE="0"]
