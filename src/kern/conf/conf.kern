@@ -472,3 +472,5 @@ optfile   concurrent_list  concurrent_list/linked_list_test.c
 
 file        shared_buffer/shared_buffer.c
 file        shared_buffer/shared_buffer_test.c
+
+file        syscall/_exit.c
