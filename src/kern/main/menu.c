@@ -73,6 +73,9 @@
  * It copies the program name because runprogram destroys the copy
  * it gets by passing it to vfs_open().
  */
+
+//static struct semaphore *menu_sem;
+
 static
 void
 cmd_progthread(void *ptr, unsigned long nargs)
@@ -121,7 +124,6 @@ common_prog(int nargs, char **args)
 	struct proc *proc;
 	int result;
 	unsigned tc;
-
 	/* Create a process for the new program to run in. */
 	proc = proc_create_runprogram(args[0] /* name */);
 	if (proc == NULL) {
@@ -134,7 +136,7 @@ common_prog(int nargs, char **args)
 			proc /* new process */,
 			cmd_progthread /* thread function */,
 			args /* thread arg */, nargs /* thread arg */);
-	
+	// call waitpid		
 	if (result) {
 		kprintf("thread_fork failed: %s\n", strerror(result));
 		proc_destroy(proc);
