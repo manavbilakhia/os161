@@ -9,9 +9,11 @@
 #include <elf.h>
 #include <syscall.h>
 #include <thread.h>
+#include <synch.h>
 
-void
-_exit(int exitcode){
+
+int
+sys__exit(int exitcode){
     KASSERT(curthread != NULL);
     (void) exitcode;
     thread_exit();

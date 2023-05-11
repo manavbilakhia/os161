@@ -64,7 +64,12 @@ int sys___time(userptr_t user_seconds, userptr_t user_nanoseconds);
  * Causes the current process to exit.
  */
 
-void _exit(int exitcode);
+int sys__exit(int exitcode);
 
+/*
+ * Write system call 
+ */
+ssize_t
+sys_write(int fd, const void *buf, size_t nbytes);
 
 #endif /* _SYSCALL_H_ */
