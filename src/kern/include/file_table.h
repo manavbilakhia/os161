@@ -32,12 +32,14 @@
 
 #include <types.h>
 #include <vfs.h>
+#include <synch.h>
+#include <vnode.h>
 
 #define MAX_FILES 256
 
 struct file {
     struct vnode *vn;
-    off_t offset;
+    unsigned int offset;
     int refcount;
     struct lock *lock;
     int flags;
@@ -45,11 +47,14 @@ struct file {
 
 struct file_table {
     struct file *files[MAX_FILES];
+    int number_files;
+    struct lock *lock;
 };
 
 struct file_table *ft_create(void);
 void ft_destroy(struct file_table *ft);
-struct file *file_create(void);
+bool ft_full(struct file_table *ft);
+struct file *file_create(struct file_table *ft, struct file *file);
 void file_destroy(struct file *f);
 
 #endif /* _FILE_TABLE_H_ */
