@@ -475,3 +475,5 @@ file        shared_buffer/shared_buffer_test.c
 
 file        syscall/exit.c
 file        syscall/write.c
+
+file        file_table/file_table.c
