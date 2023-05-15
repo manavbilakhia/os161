@@ -77,7 +77,7 @@ struct file_table *ft_create(void){
 void ft_destroy(struct file_table *ftable){
     KASSERT(ftable != NULL);
 
-    for(int i = 0; i < MAX_FILES, i++){
+    for(int i = 0; i < MAX_FILES; i++){
         file_destroy(ftable -> files[i]);
     }
     lock_destroy(ftable -> lock);
@@ -91,7 +91,7 @@ bool ft_full(struct file_table *ftable){
 /**
  * Creates a file atomic
 */
-struct file *file_create(struct file_table *ftable, struct file *file){
+struct file *file_create(struct file_table *ftable){
     KASSERT(!ft_full(ftable));
     lock_acquire(ftable -> lock);
 
@@ -130,4 +130,27 @@ void file_destroy(struct file *file){
     file -> refcount--;
 
     kfree(file);
+}
+
+void ft_add_file(struct file_table *ftable, struct file *file){
+    KASSERT(ftable != NULL);
+    lock_acquire(ftable -> lock);
+    int i = 0;
+
+    while(ftable -> files[i] != NULL){
+        i++;
+    }
+
+    ftable -> files[i] = file;
+    lock_release(ftable -> lock);
+}
+
+struct file *copy_file(struct file_table *ftable){
+    KASSERT(ftable != NULL);
+    lock_acquire(ftable -> lock);
+    struct file *copy = file_create(ftable);
+    copy -> refcount++;
+
+    lock_release(ftable -> lock);
+    return copy;
 }

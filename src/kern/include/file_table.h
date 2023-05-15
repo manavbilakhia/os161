@@ -54,7 +54,11 @@ struct file_table {
 struct file_table *ft_create(void);
 void ft_destroy(struct file_table *ft);
 bool ft_full(struct file_table *ft);
-struct file *file_create(struct file_table *ft, struct file *file);
+struct file *file_create(struct file_table *ft);
 void file_destroy(struct file *f);
+void ft_add_file(struct file_table *ft, struct file *file);
+struct file *copy_file(struct file_table *ft);
+
+
 
 #endif /* _FILE_TABLE_H_ */
