@@ -51,9 +51,6 @@
 #include <file_table.h>
 #include <synch.h>
 
-/*
- * The process for the kernel; this holds all the kernel-only threads.
- */
 struct file_table *ftable;
 
 struct file_table *ft_create(void){
@@ -70,7 +67,6 @@ struct file_table *ft_create(void){
     }
 
     ftable -> number_files = 0;
-
     return ftable;
 }
 

@@ -72,4 +72,7 @@ int sys__exit(int exitcode);
 ssize_t
 sys_write(int fd, const void *buf, size_t nbytes);
 
+int 
+sys_open(const char *filename, int flags);
+
 #endif /* _SYSCALL_H_ */
