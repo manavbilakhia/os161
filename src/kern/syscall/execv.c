@@ -149,6 +149,8 @@ sys_execv(const char *program, char **args)
 		return -result;
 	}
 
+	//Need to add the stack copying here. Also need copy out at some point
+
 	/* Warp to user mode. */
 	enter_new_process(0 /*argc*/, NULL /*userspace addr of argv*/,
 			  NULL /*userspace addr of environment*/,
