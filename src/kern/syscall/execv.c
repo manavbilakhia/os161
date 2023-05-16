@@ -40,11 +40,16 @@
 #include <test.h>
 #include <kern/limits.h>
 #include <copyinout.h>
+#include <synch.h>
 
+struct lock *lock;
 
 int
 sys_execv(const char *program, char **args)
 {
+	lock = lock_create("execv_lock");
+	lock_acquire(lock);
+	
 	struct addrspace *as;
 	struct vnode *v;
 	vaddr_t entrypoint, stackptr;
@@ -61,11 +66,13 @@ sys_execv(const char *program, char **args)
     }
 
 	if(args_length > __ARG_MAX){
+		lock_release(lock);
 		return -E2BIG;
 	}
 
     copy_args = (char **) kmalloc(sizeof(char **) * args_length);
     if(copy_args == NULL){
+		lock_release(lock);
         return -ENOMEM;
     }
 
@@ -73,6 +80,7 @@ sys_execv(const char *program, char **args)
         result = copyin((const_userptr_t) args[i], copy_args[i], 1); //place holder need to know last parameter for this
         if(result){
             kfree(copy_args);
+			lock_release(lock);
 			return -result;
         }
     }
@@ -81,6 +89,7 @@ sys_execv(const char *program, char **args)
 	copy_program = (char *) kmalloc(sizeof(strlen(program)));
 	if(copy_program == NULL){
 		kfree(copy_args);
+		lock_release(lock);
 		return -ENOMEM;
 	}
 
@@ -88,6 +97,7 @@ sys_execv(const char *program, char **args)
 	if(result){
 		kfree(copy_args);
 		kfree(copy_program);
+		lock_release(lock);
 		return -result;
 	}
 
@@ -96,6 +106,7 @@ sys_execv(const char *program, char **args)
 	if (result) {
 		kfree(copy_args);
 		kfree(copy_program);
+		lock_release(lock);
 		return -result;
 	}
 
@@ -108,6 +119,7 @@ sys_execv(const char *program, char **args)
 		vfs_close(v);
 		kfree(copy_args);
 		kfree(copy_program);
+		lock_release(lock);
 		return -ENOMEM;
 	}
 
@@ -122,6 +134,7 @@ sys_execv(const char *program, char **args)
 		vfs_close(v);
 		kfree(copy_args);
 		kfree(copy_program);
+		lock_release(lock);
 		return -result;
 	}
 
@@ -132,6 +145,7 @@ sys_execv(const char *program, char **args)
 	result = as_define_stack(as, &stackptr);
 	if (result) {
 		/* p_addrspace will go away when curproc is destroyed */
+		lock_release(lock);
 		return -result;
 	}
 
@@ -142,6 +156,7 @@ sys_execv(const char *program, char **args)
 
 	/* enter_new_process does not return. */
 	panic("enter_new_process returned\n");
+	lock_release(lock);
 	return -EINVAL;
 }
 
