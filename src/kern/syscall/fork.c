@@ -7,6 +7,7 @@
 #include <mips/trapframe.h>
 #include <filetable.h>
 #include <kern/errno.h>
+#include <trap.c>
 
 
 int sys_fork(struct trapframe *tf_parent, int * return_value){
@@ -33,7 +34,7 @@ int sys_fork(struct trapframe *tf_parent, int * return_value){
 
     if (tf_child == NULL) { return ENOMEM; }
 
-    struct file_table * parent_file_table = curproc->p_filetable; // need to get filetable merge
+    struct file_table * parent_file_table = curproc->p_filetable; // need to get filetable merge (git)
     struct file_table * child_file_table = child->p_filetable;
     *parent_file_table = *child_file_table;
 
@@ -45,11 +46,14 @@ int sys_fork(struct trapframe *tf_parent, int * return_value){
 }
 
 void child_entry_point(struct trapframe * tf_child, unisigned long address_space_child){
+    /*
+     * Documentation to be written.
+     */
     curthread->t_addrspace = (struct addrspace * ) address_space_child;
     KASSERT(curthread->t_addrspace != NULL);
-
-
-    // what next??????
-
-    // update trapframe???
+    as_activate(curthread->t_addrspace);
+    tf_child.tf_a3 = 0;
+    tf_child.tf_v0 = 0;
+    tf.tf_epc += 4;
+    mips_usermode(tf_child);
 }
