@@ -38,6 +38,8 @@
 #include <vfs.h>
 #include <syscall.h>
 #include <test.h>
+#include <kern/limits.h>
+#include <copyinout.h>
 
 
 int
@@ -53,27 +55,48 @@ sys_execv(const char *program, char **args)
 
     int args_length = 0;
 
-    /* Copying in the args from user into kernel*/
+    /* Copying in the complex args */
     while(args[args_length] != NULL){
         args_length++;
     }
 
+	if(args_length > __ARG_MAX){
+		return -E2BIG;
+	}
+
     copy_args = (char **) kmalloc(sizeof(char **) * args_length);
     if(copy_args == NULL){
-        return NULL;
+        return -ENOMEM;
     }
 
     for(int i = 0; i < args_length; i++){
-        result = copyin(args[i], copy_args[i], 1); //place holder need to know last parameter for this
+        result = copyin((const_userptr_t) args[i], copy_args[i], 1); //place holder need to know last parameter for this
         if(result){
             kfree(copy_args);
+			return -result;
         }
     }
 
+	/* Copying in the program string */
+	copy_program = (char *) kmalloc(sizeof(strlen(program)));
+	if(copy_program == NULL){
+		kfree(copy_args);
+		return -ENOMEM;
+	}
+
+	result = copyin((const_userptr_t) program, copy_program, strlen(program));
+	if(result){
+		kfree(copy_args);
+		kfree(copy_program);
+		return -result;
+	}
+
 	/* Open the file. */
-	result = vfs_open(program, O_RDONLY, 0, &v);
+	result = vfs_open((char *) program, O_RDONLY, 0, &v);
 	if (result) {
-		return result;
+		kfree(copy_args);
+		kfree(copy_program);
+		return -result;
 	}
 
 	/* We should be a new process. */
@@ -83,7 +106,9 @@ sys_execv(const char *program, char **args)
 	as = as_create();
 	if (as == NULL) {
 		vfs_close(v);
-		return ENOMEM;
+		kfree(copy_args);
+		kfree(copy_program);
+		return -ENOMEM;
 	}
 
 	/* Switch to it and activate it. */
@@ -95,7 +120,9 @@ sys_execv(const char *program, char **args)
 	if (result) {
 		/* p_addrspace will go away when curproc is destroyed */
 		vfs_close(v);
-		return result;
+		kfree(copy_args);
+		kfree(copy_program);
+		return -result;
 	}
 
 	/* Done with the file now. */
@@ -105,7 +132,7 @@ sys_execv(const char *program, char **args)
 	result = as_define_stack(as, &stackptr);
 	if (result) {
 		/* p_addrspace will go away when curproc is destroyed */
-		return result;
+		return -result;
 	}
 
 	/* Warp to user mode. */
@@ -115,6 +142,6 @@ sys_execv(const char *program, char **args)
 
 	/* enter_new_process does not return. */
 	panic("enter_new_process returned\n");
-	return EINVAL;
+	return -EINVAL;
 }
 
