@@ -43,6 +43,7 @@ struct file {
     int refcount;
     struct lock *lock;
     int flags;
+    int fd; // this is what we were missing, the file descriptor!!!!!!
 };
 
 struct file_table {
