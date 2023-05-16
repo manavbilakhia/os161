@@ -20,6 +20,6 @@ sys_close(int fd){
     
     ft_destroy(curproc);
 
-    vfs_close(fd)
+    vfs_close(fd);
 
 }
