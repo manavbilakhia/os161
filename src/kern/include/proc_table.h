@@ -3,6 +3,7 @@
 
 #include <spinlock.h>
 #include <types.h>
+#include <proc.h>
 
 #define MAX_ACTIVE_PROCS 100
 
@@ -33,6 +34,8 @@ int get_available_pid(struct proc_table *pt); // same strategy as previous
 bool proc_table_full(struct proc_table *pt);
 
 struct proc * remove_process(struct proc_table * pt, int pid);
+
+int get_pid(struct proc_table * pt, struct * proc);
 
 bool valid_pid(int pid);
 
