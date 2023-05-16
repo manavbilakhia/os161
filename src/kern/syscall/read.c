@@ -28,7 +28,7 @@ sys_read(int fd, void *buf, size_t buflen) {
     
     // Create a uio structure for reading into the buffer
     struct uio u;
-    uio_init(&u, buf, buflen, file->offset, UIO_READ);
+    uio_kinit(&u, buf, buflen, file->offset, UIO_READ);
     
     // Read from the file using VOP_READ
     result = VOP_READ(file->vn, &u);
