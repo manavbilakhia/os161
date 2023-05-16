@@ -162,14 +162,15 @@ int ft_add_file(struct file_table *ftable, struct file *file){
 }
 
 // not completed
-struct file *copy_file(struct file_table *ftable){
+int copy_file(struct file_table *ftable, int fd){
     KASSERT(ftable != NULL);
     lock_acquire(ftable -> lock);
-    struct file *copy = ftable -> files[file_create(ftable)];
+    struct file *copy = ftable -> files[fd];
     VOP_INCREF(copy -> vn);
 
+    int copy_fd = ft_add_file(ftable, copy);
     lock_release(ftable -> lock);
-    return copy;
+    return copy_fd;
 }
 
 

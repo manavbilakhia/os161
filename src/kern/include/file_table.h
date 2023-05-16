@@ -57,7 +57,7 @@ bool ft_full(struct file_table *ft);
 int file_create(struct file_table *ft);
 void file_destroy(struct file *f);
 int ft_add_file(struct file_table *ft, struct file *file);
-struct file *copy_file(struct file_table *ft);
+int copy_file(struct file_table *ft, int fd);
 int ft_remove_file(struct file_table *ft, int fd);
 int ft_look_up(struct file_table *ft, int fd);
 
