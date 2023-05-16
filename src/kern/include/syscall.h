@@ -72,4 +72,10 @@ int sys__exit(int exitcode);
 ssize_t
 sys_write(int fd, const void *buf, size_t nbytes);
 
+/*
+ * Execv system call 
+ */
+int
+sys_execv(const char *program, char **args);
+
 #endif /* _SYSCALL_H_ */
