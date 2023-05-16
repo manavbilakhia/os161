@@ -35,7 +35,7 @@
 #include <synch.h>
 #include <vnode.h>
 
-#define MAX_FILES 256
+#define MAX_FILES 20
 
 struct file {
     struct vnode *vn;
@@ -59,6 +59,8 @@ struct file *file_create(struct file_table *ft);
 void file_destroy(struct file *f);
 void ft_add_file(struct file_table *ft, struct file *file);
 struct file *copy_file(struct file_table *ft);
+int ft_remove_file(struct file_table *ft, struct file *file);
+int ft_look_up(struct file_table *ft, struct file *file);
 
 
 

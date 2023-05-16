@@ -104,7 +104,7 @@ struct file *file_create(struct file_table *ftable){
 
     file -> vn = NULL;
     file -> offset = 0;
-    file -> refcount = 1;
+    VOP_INCREF(file -> vn);
 
     ftable -> number_files++; //will need to add file to the file table
     
@@ -123,11 +123,12 @@ void file_destroy(struct file *file){
         vfs_close(file -> vn);
     }
 
-    file -> refcount--;
+    VOP_INCREF(file -> vn);
 
     kfree(file);
 }
 
+//should we return the index for the fd?
 void ft_add_file(struct file_table *ftable, struct file *file){
     KASSERT(ftable != NULL);
     lock_acquire(ftable -> lock);
@@ -141,12 +142,26 @@ void ft_add_file(struct file_table *ftable, struct file *file){
     lock_release(ftable -> lock);
 }
 
+// not completed
 struct file *copy_file(struct file_table *ftable){
     KASSERT(ftable != NULL);
     lock_acquire(ftable -> lock);
     struct file *copy = file_create(ftable);
-    copy -> refcount++;
+    VOP_INCREF(copy -> vn);
 
     lock_release(ftable -> lock);
     return copy;
+}
+
+
+int ft_remove_file(struct file_table *ftable, struct file *file){
+    KASSERT(ftable != NULL);
+    lock_acquire(ftable -> lock);
+
+    VOP_DECREF(file -> vn);
+
+}
+
+int ft_look_up(struct file_table *ft, struct file *file){
+
 }
