@@ -101,7 +101,7 @@ bool ft_full(struct file_table *ftable){
 /**
  * Creates a file atomic and returns the file descriptor
 */
-int file_create(struct file_table *ftable){
+int file_create(struct file_table *ftable, char *path){
     KASSERT(!ft_full(ftable));
     lock_acquire(ftable -> lock);
 
@@ -110,8 +110,15 @@ int file_create(struct file_table *ftable){
         return ENOMEM;
     }
 
+    file -> path = kstrdup(path);
+    if(file ->path == NULL){
+        kfree(file);
+        return ENOMEM;
+    }
+
     file -> lock = lock_create("file_lock");
     if(file -> lock == NULL){
+        kfree(file -> path);
         kfree(file);
         return ENOMEM;
     }
@@ -137,6 +144,7 @@ void file_destroy(struct file *file){
         vfs_close(file -> vn);
     }
 
+    kfree(file -> path);
     kfree(file);
 }
 
@@ -161,7 +169,6 @@ int ft_add_file(struct file_table *ftable, struct file *file){
     return fd;
 }
 
-// not completed
 int copy_file(struct file_table *ftable, int fd){
     KASSERT(ftable != NULL);
     lock_acquire(ftable -> lock);
@@ -184,9 +191,15 @@ int ft_remove_file(struct file_table *ftable, int fd){
         return EBADF;
     }
 
-    ftable -> files[fd] = NULL;
+    struct file *file = ftable -> files[fd];
+    if(file -> vn -> vn_refcount == 1){
+        file_destroy(file);
+        return fd;
+    }
 
     VOP_DECREF(target -> vn);
+
+    ftable -> files[fd] = NULL;
 
     lock_destroy(target -> lock);
     kfree(target);
