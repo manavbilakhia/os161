@@ -112,17 +112,22 @@ bool ft_full(struct file_table *ftable){
  * Creates a file atomic and returns the file descriptor
 */
 int file_create(struct file_table *ftable, char *path){
+    if (ft_full(ftable)){
+        return ENFILE;
+    }
     KASSERT(!ft_full(ftable));
     lock_acquire(ftable -> lock);
 
     struct file *file = kmalloc(sizeof(struct file));
     if (file == NULL){
+        lock_release(ftable->lock);
         return ENOMEM;
     }
 
     file -> path = kstrdup(path);
     if(file ->path == NULL){
         kfree(file);
+        lock_release(ftable->lock);
         return ENOMEM;
     }
 
@@ -130,6 +135,7 @@ int file_create(struct file_table *ftable, char *path){
     if(file -> lock == NULL){
         kfree(file -> path);
         kfree(file);
+        lock_release(ftable->lock);
         return ENOMEM;
     }
 
@@ -162,19 +168,23 @@ void file_destroy(struct file *file){
 
 //should we return the index for the fd?
 int ft_add_file(struct file_table *ftable, struct file *file){
-    KASSERT(ftable != NULL);
-    lock_acquire(ftable -> lock);
 
     if(ft_full(ftable)){
         return ENFILE;
     }
+    KASSERT(ftable != NULL);
+    lock_acquire(ftable -> lock);
 
     int fd = 0;
 
-    while(ftable -> files[fd] != NULL){
+    while(ftable -> files[fd] != NULL && fd <MAX_FILES){
         fd++;
     }
-
+    if (fd == MAX_FILES)
+    {
+        lock_release(ftable -> lock);
+        return ENFILE;
+    }
     ftable -> files[fd] = file;
     ftable -> number_files++;
     lock_release(ftable -> lock);
@@ -185,6 +195,7 @@ int copy_file(struct file_table *ftable, int fd){
     KASSERT(ftable != NULL);
     lock_acquire(ftable -> lock);
         if (fd < 0 || fd >= MAX_FILES) {
+            lock_release(ftable -> lock);
         return EBADF;
     }
     struct file *copy = ftable -> files[fd];
@@ -199,7 +210,7 @@ int copy_file(struct file_table *ftable, int fd){
 /* Removes a file from the file table and returns its descriptor. Decrements ref count*/
 int ft_remove_file(struct file_table *ftable, int fd){
     KASSERT(ftable != NULL);
-    lock_acquire(ftable -> lock);
+    //lock_acquire(ftable -> lock);
 
     if (fd < 0 || fd >= MAX_FILES) {
         return EBADF;
@@ -220,10 +231,10 @@ int ft_remove_file(struct file_table *ftable, int fd){
 
     ftable -> files[fd] = NULL;
 
-    lock_destroy(target -> lock);
+    lock_destroy(target -> lock); // we cannot acquire a lock, destroy it and then try to release it..... so I am removing the locks
     kfree(target);
 
-    lock_release(ftable -> lock);
+    //lock_release(ftable -> lock);
     return fd;
 }
 
