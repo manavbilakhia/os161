@@ -35,7 +35,7 @@
 #include <synch.h>
 #include <vnode.h>
 
-#define MAX_FILES 256
+#define MAX_FILES 20
 
 struct file {
     struct vnode *vn;
@@ -43,7 +43,7 @@ struct file {
     int refcount;
     struct lock *lock;
     int flags;
-    int fd; // this is what we were missing, the file descriptor!!!!!!
+    char *path;
 };
 
 struct file_table {
@@ -55,10 +55,13 @@ struct file_table {
 struct file_table *ft_create(void);
 void ft_destroy(struct file_table *ft);
 bool ft_full(struct file_table *ft);
-struct file *file_create(struct file_table *ft);
+int file_create(struct file_table *ft, char *path);
 void file_destroy(struct file *f);
-void ft_add_file(struct file_table *ft, struct file *file);
-struct file *copy_file(struct file_table *ft);
+int ft_add_file(struct file_table *ft, struct file *file);
+int copy_file(struct file_table *ft, int fd);
+int ft_remove_file(struct file_table *ft, int fd);
+int ft_look_up(struct file_table *ft, int fd);
+int file_seek(struct file_table *ft, int fd);
 
 
 
