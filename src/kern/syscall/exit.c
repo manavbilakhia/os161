@@ -10,11 +10,18 @@
 #include <syscall.h>
 #include <thread.h>
 #include <synch.h>
+#include <proc_table.h>
 
 
 int
 sys__exit(int exitcode){
+    /*
+     * Removes a process from the table of active processes.
+     */
     KASSERT(curthread != NULL);
-    (void) exitcode;
+    splhigh();
+    // close the open files of the proc
+    remove_process(global_proc_table, curproc->process_id);
+    proc_destroy(curproc);
     thread_exit();
 }

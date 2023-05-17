@@ -65,6 +65,7 @@ struct proc {
 	struct spinlock p_lock;		/* Lock for this structure */
 	unsigned p_numthreads;		/* Number of threads in this process */
 	pid_t process_id;
+	pid_t parent_process_id;
 
 	/* VM */
 	struct addrspace *p_addrspace;	/* virtual address space */

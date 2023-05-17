@@ -56,21 +56,21 @@ int add_proc(pid_t pid, struct proc_table *pt, struct proc * p){
     return 0;
 }
 
-int get_proc(int pid, struct proc_table *pt, struct proc **p){
+struct proc * get_proc(int pid, struct proc_table *pt){
     /*
     Returns a process from the process table, given a pid. Returns 0 upon success, else an error. */
     KASSERT(pt != NULL);
-    if (!valid_pid(pid)) { return EINVAL; } 
+    if (!valid_pid(pid)) { return NULL; } 
 
     spinlock_acquire(&pt -> pt_lock);
 
-    *p = pt->proc_table_map[pid];
+    struct proc *p = pt->proc_table_map[pid];
 
-    if (*p == NULL) { return ESRCH; } 
+    if (p == NULL) { return NULL; } 
 
     spinlock_release(&pt -> pt_lock);
 
-    return 0;
+    return &p;
 }
 
 pid_t get_available_pid(struct proc_table *pt){

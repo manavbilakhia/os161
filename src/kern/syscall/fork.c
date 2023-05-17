@@ -1,4 +1,3 @@
-#include <kern/fork.h>
 #include <syscall.h>
 #include <types.h>
 #include <proc.h>

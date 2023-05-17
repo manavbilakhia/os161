@@ -48,6 +48,7 @@
 #include <current.h>
 #include <addrspace.h>
 #include <vnode.h>
+#include <proc_table.h>
 
 /*
  * The process for the kernel; this holds all the kernel-only threads.
@@ -81,6 +82,10 @@ proc_create(const char *name)
 
 	/* VFS fields */
 	proc->p_cwd = NULL;
+
+	proc->process_id = get_available_pid(global_proc_table);
+	add_proc(proc -> process_id, global_proc_table, proc);
+	proc->parent_process_id = NULL;
 
 	return proc;
 }
