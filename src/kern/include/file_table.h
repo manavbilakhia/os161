@@ -40,7 +40,6 @@
 struct file {
     struct vnode *vn;
     unsigned int offset;
-    int refcount;
     struct lock *lock;
     int flags;
     char *path;
