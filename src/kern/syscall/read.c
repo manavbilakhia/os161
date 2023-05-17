@@ -1,50 +1,57 @@
 #include <types.h>
-#include <proc.h>
-#include <current.h>
-#include <vnode.h>
-#include <file_table.h>
-#include <uio.h>
 #include <syscall.h>
-#include <kern/errmsg.h>
+#include <current.h>
+#include <proc.h>
+#include <copyinout.h>
+#include <vnode.h>
+#include <uio.h>
+#include <kern/errno.h>
+#include <kern/fcntl.h>
 
 ssize_t
 sys_read(int fd, void *buf, size_t buflen) {
-    struct file_table *ftable = curproc->p_filetable;
     struct file *file;
-    int result;
+    struct iovec iov;
+    struct uio ku;
     int *retval;
-    
-    // Check if the file descriptor is within a valid range
-    if (fd < 0 || fd >= MAX_FILES)
+
+    // Validate file descriptor
+    if (fd < 0 || fd >= MAX_FILES) {
         return EBADF;
-    
-    // Check if the file is open in the file table
-    file = ftable->files[fd];
-    if (file == NULL)
+    }
+
+    // Get file from file table
+    file = curproc->p_filetable->files[fd];
+    if (file == NULL) {
         return EBADF;
-    
-    // Acquire the lock for the file
+    }
+
+    // Check for read permission
+    if ((file->flags & O_ACCMODE) == O_WRONLY) {
+        return EBADF;
+    }
+
+    // Lock file
     lock_acquire(file->lock);
-    
-    // Create a uio structure for reading into the buffer
-    struct uio u;
-    uio_kinit(&u, buf, buflen, file->offset, UIO_READ);
-    
-    // Read from the file using VOP_READ
-    result = VOP_READ(file->vn, &u);
+
+    // Setup uio structure
+    uio_kinit(&iov, &ku, buf, buflen, file->offset, UIO_READ);
+
+    // Perform read
+    int result = VOP_READ(file->vn, &ku);
     if (result) {
         lock_release(file->lock);
         return result;
     }
-    
-    // Update the offset based on the number of bytes read
-    file->offset += u.uio_offset - file->offset;
-    
-    // Set the number of bytes read as the return value
-    *retval = u.uio_offset - file->offset;
-    
-    // Release the lock for the file
+
+    // Update offset
+    file->offset = ku.uio_offset;
+
+    // Unlock file
     lock_release(file->lock);
+
+    // Return number of bytes read
+    *retval = buflen - ku.uio_resid;
 
     return 0;
 }
