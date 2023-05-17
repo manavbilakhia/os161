@@ -17,11 +17,9 @@ struct proc_table{
     volatile int active_procs; // number of active processes
 
     struct proc* proc_table_map[MAX_ACTIVE_PROCS];
-
-    volatile int next_available_spot;
 };
 
-void proc_table_create(struct proc_table **pt);
+void proc_table_create(void);
 
 void proc_table_destroy(struct proc_table *pt);
 

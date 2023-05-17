@@ -38,6 +38,7 @@
 
 #include <spinlock.h>
 #include <types.h>
+#include <synch.h>
 
 struct addrspace;
 struct thread;
@@ -60,6 +61,10 @@ struct vnode;
  * thread_switch needs to be able to fetch the current address space
  * without sleeping.
  */
+
+extern struct lock * waitpidlock;
+extern struct cv * waitpidcv;
+
 struct proc {
 	char *p_name;			/* Name of this process */
 	struct spinlock p_lock;		/* Lock for this structure */

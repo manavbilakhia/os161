@@ -1,5 +1,5 @@
-#include <proc_table.h>
 #include <types.h>
+#include <proc_table.h>
 #include <lib.h>
 #include <synch.h>
 #include <proc.h>
@@ -10,18 +10,17 @@
 
 struct proc_table *global_proc_table;
 
-void proc_table_create(struct proc_table ** pt){
+void proc_table_create(void){
     /*
     Creates a process table.
     */
-    *pt = kmalloc(sizeof(struct proc_table));
-    if (*pt == NULL) { kprintf("Hey! Where's my process table?"); }
+    global_proc_table = kmalloc(sizeof(struct proc_table));
+    KASSERT(global_proc_table != NULL);
 
-    spinlock_init(&((*pt) -> pt_lock));
-    (*pt) -> active_procs = 0;
-    (*pt) -> next_available_spot = 0;
+    spinlock_init(&((global_proc_table) -> pt_lock));
+    (global_proc_table) -> active_procs = 0;
 
-    for (int j = 0; j < MAX_ACTIVE_PROCS; j++) { (*pt) -> proc_table_map[j] = NULL; }
+    for (int j = 2; j < MAX_ACTIVE_PROCS; j++) { (global_proc_table) -> proc_table_map[j] = NULL; } // is this line necessary?
 }
 
 void proc_table_destroy(struct proc_table * pt){
@@ -51,7 +50,6 @@ int add_proc(pid_t pid, struct proc_table *pt, struct proc * p){
 
     pt -> proc_table_map[pid] = p;
     pt -> active_procs++;
-    pt -> next_available_spot++;
 
     spinlock_release(&pt -> pt_lock);
 
@@ -68,7 +66,10 @@ struct proc * get_proc(int pid, struct proc_table *pt){
 
     struct proc *p = pt->proc_table_map[pid];
 
-    if (p == NULL) { return NULL; } 
+    if (p == NULL){
+        spinlock_release(&pt -> pt_lock);
+        return NULL; 
+    } 
 
     spinlock_release(&pt -> pt_lock);
 
@@ -82,7 +83,7 @@ pid_t get_available_pid(struct proc_table *pt){
     KASSERT(pt != NULL);
     spinlock_acquire(&pt->pt_lock);
 
-    for (int j = 0; j < MAX_ACTIVE_PROCS; j++){
+    for (int j = 2; j < MAX_ACTIVE_PROCS; j++){
         if (pt -> proc_table_map[j] == NULL){
             spinlock_release(&pt->pt_lock);
             return j;
@@ -112,7 +113,7 @@ struct proc * remove_process(struct proc_table *pt, pid_t pid){
     
 }
 
-bool valid_pid(pid_t pid){ return (pid >= 0 && pid < MAX_ACTIVE_PROCS); 
+bool valid_pid(pid_t pid){ return (pid >= 2 && pid < MAX_ACTIVE_PROCS); 
     /*
     Checks if the pid given is valid.
     */

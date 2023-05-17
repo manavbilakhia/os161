@@ -50,6 +50,7 @@
 #include "opt-automationtest.h"
 #include "opt-concurrent_list.h"
 
+
 /*
  * In-kernel menu and command dispatcher.
  */
@@ -621,6 +622,7 @@ static const char *testmenu[] = {
 	"[fs5] FS long stress                ",
 	"[fs6] FS create stress              ",
 	"[hm1] HMAC unit test                ",
+	"[ptt] Proc table test				 ",
 	NULL
 };
 
@@ -766,6 +768,7 @@ static struct {
 	{ "llt", linked_list_test_run },
 #endif
 	{ "sbt", shared_buffer_test_run },
+	{"ptt", proc_table_test_run},
 	/* semaphore unit tests */
 	{ "semu1",	semu1 },
 	{ "semu2",	semu2 },

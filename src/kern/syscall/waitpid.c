@@ -20,13 +20,25 @@ pid_t sys_waitpid(pid_t child_pid, userptr_t status, int options){
      * Documentation to be written.
      */
     if (!valid_pid(child_pid)){ return EINVAL; }
+    if (options != 0){ return EINVAL; }
     if (get_proc(child_pid, global_proc_table) == NULL){ return ESRCH; }
     if (status == NULL){ return EFAULT; }
     if (get_proc(child_pid, global_proc_table)->parent_process_id == curproc->parent_process_id){ return ECHILD; }
 
-    options = options + 0; // TEMPORARY TO MAKE COMPILE REMOVE LATER
-    return curproc->process_id; // TEMPORARY TO MAKE COMPILE REMOVE LATER
-    
+    lock_acquire(waitpidlock);
+    if (get_proc(child_pid, global_proc_table) -> finished == 1){ //why can't i use true? ASK MATT ABOUT THIS HACK
+        //copyout() NEED TO FIGURE OUT HOW TO COPYOUT DATA copyout(exitcode, status, sizeof(int));
+        proc_destroy(get_proc(child_pid, global_proc_table));
+        return child_pid;
+    }
+    else{
+        while (get_proc(child_pid, global_proc_table) -> finished != 1){
+            cv_wait(waitpidcv, waitpidlock);
+        }
+        //copyout() NEED TO FIGURE OUT
+        proc_destroy(get_proc(child_pid, global_proc_table));
+        return child_pid;
+    }
 }
 
 pid_t sys_getpid(void){ return curproc->process_id; 

@@ -60,6 +60,8 @@ struct proc *kproc;
 /*
  * Create a proc structure.
  */
+struct lock * waitpidlock;
+struct cv * waitpidcv;
 
 struct proc *
 proc_create(const char *name)
@@ -185,12 +187,16 @@ proc_destroy(struct proc *proc)
  * Create the process structure for the kernel.
  */
 void
-proc_bootstrap(void)
+proc_bootstrap(void) 
 {
+	proc_table_create();
+	KASSERT(global_proc_table != NULL);
 	kproc = proc_create("[kernel]");
 	if (kproc == NULL) {
 		panic("proc_create for kproc failed\n");
 	}
+	waitpidlock = lock_create("waitpidlock");
+	waitpidcv = cv_create("cvlock");
 }
 
 /*
