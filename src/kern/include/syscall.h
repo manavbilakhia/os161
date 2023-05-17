@@ -76,6 +76,6 @@ int
 sys_open(const char *filename, int flags);
 
 int
-close(int fd);
+sys_close(int fd);
 
 #endif /* _SYSCALL_H_ */

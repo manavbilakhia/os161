@@ -16,10 +16,12 @@
 int
 sys_close(int fd){
     KASSERT(curthread != NULL);
-    
-    
-    ft_destroy(curproc);
+    int result;
 
-    vfs_close(fd);
+    result = ft_remove_file(curproc -> p_filetable, fd);
+    if(result == EBADF){
+        return EBADF;
+    }
 
+    return 0;
 }
