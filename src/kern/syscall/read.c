@@ -32,6 +32,7 @@ sys_read(int fd, void *buf, size_t buflen) {
     }
 
     // Lock file
+    KASSERT (file->lock != NULL);
     lock_acquire(file->lock);
 
     // Setup uio structure

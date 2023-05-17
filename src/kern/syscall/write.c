@@ -35,7 +35,7 @@ sys_write(int fd, const void *buf, size_t nbytes){
     if (file == NULL || !(file->flags & O_WRONLY || file->flags & O_RDWR || file->flags & O_ACCMODE || file->flags & O_RDONLY)) {
         return EBADF;
     }
-
+    KASSERT (file->lock != NULL);
     lock_acquire(file->lock);
 
     //  Write the bytes from the buffer to the file and update the current seek position of the file.

@@ -68,11 +68,18 @@ struct file_table *ft_create(void){
     }
 
     ftable -> number_files = 0;
+    for (int i = 0; i <MAX_FILES; i++)
+    {
+        ftable->files[i] = NULL;
+    } 
     return ftable;
 }
 
 int ft_look_up(struct file_table *ftable, int fd){
     KASSERT(ftable != NULL);
+    if (fd < 0 || fd >= MAX_FILES) {
+        return EBADF;
+    }
     struct file *target = ftable -> files[fd];
 
     if(target == NULL){
@@ -86,7 +93,10 @@ void ft_destroy(struct file_table *ftable){
     KASSERT(ftable != NULL);
 
     for(int i = 0; i < MAX_FILES; i++){
-        if(!ft_look_up(ftable, i) == EBADF){
+        //if(!ft_look_up(ftable, i) == EBADF){
+        //    file_destroy(ftable -> files[i]);
+        //}
+        if(ft_look_up(ftable, i) != EBADF){
             file_destroy(ftable -> files[i]);
         }
     }
@@ -125,7 +135,9 @@ int file_create(struct file_table *ftable, char *path){
 
     file -> vn = NULL;
     file -> offset = 0;
-    VOP_INCREF(file -> vn);
+    if(file -> vn != NULL) {
+        VOP_INCREF(file -> vn);
+    }
 
     int fd = ft_add_file(ftable, file);
     
@@ -172,6 +184,9 @@ int ft_add_file(struct file_table *ftable, struct file *file){
 int copy_file(struct file_table *ftable, int fd){
     KASSERT(ftable != NULL);
     lock_acquire(ftable -> lock);
+        if (fd < 0 || fd >= MAX_FILES) {
+        return EBADF;
+    }
     struct file *copy = ftable -> files[fd];
     VOP_INCREF(copy -> vn);
 
@@ -185,6 +200,10 @@ int copy_file(struct file_table *ftable, int fd){
 int ft_remove_file(struct file_table *ftable, int fd){
     KASSERT(ftable != NULL);
     lock_acquire(ftable -> lock);
+
+    if (fd < 0 || fd >= MAX_FILES) {
+        return EBADF;
+    }
 
     struct file *target = ftable -> files[fd];
     if (target == NULL){
@@ -210,6 +229,9 @@ int ft_remove_file(struct file_table *ftable, int fd){
 
 int file_seek(struct file_table *ftable, int fd){
     KASSERT(ftable != NULL);
+    if (fd < 0 || fd >= MAX_FILES) {
+        return EBADF;
+    }
     struct file *file = ftable -> files[fd];
     if(file == NULL){
         return EBADF;
