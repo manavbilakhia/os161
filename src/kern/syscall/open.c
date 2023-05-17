@@ -51,7 +51,7 @@ int sys_open(const char *filename, int flags){
 
     // Create file and return file descriptor or an error code
     int fd = file_create(ftable, kpath);
-    if(fd < 0){
+    if(fd < MIN_FD){
         vfs_close(vn);
         kfree(kpath);
         return fd;

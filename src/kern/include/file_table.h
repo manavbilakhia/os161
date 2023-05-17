@@ -36,6 +36,7 @@
 #include <vnode.h>
 
 #define MAX_FILES 20
+#define MIN_FD 3
 
 struct file {
     struct vnode *vn;

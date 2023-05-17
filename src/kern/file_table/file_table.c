@@ -175,7 +175,7 @@ int ft_add_file(struct file_table *ftable, struct file *file){
     KASSERT(ftable != NULL);
     lock_acquire(ftable -> lock);
 
-    int fd = 0;
+    int fd = MIN_FD;
 
     while(ftable -> files[fd] != NULL && fd <MAX_FILES){
         fd++;
@@ -194,7 +194,7 @@ int ft_add_file(struct file_table *ftable, struct file *file){
 int copy_file(struct file_table *ftable, int fd){
     KASSERT(ftable != NULL);
     lock_acquire(ftable -> lock);
-        if (fd < 0 || fd >= MAX_FILES) {
+        if (fd < MIN_FD || fd >= MAX_FILES) {
             lock_release(ftable -> lock);
         return EBADF;
     }
@@ -212,7 +212,7 @@ int ft_remove_file(struct file_table *ftable, int fd){
     KASSERT(ftable != NULL);
     //lock_acquire(ftable -> lock);
 
-    if (fd < 0 || fd >= MAX_FILES) {
+    if (fd < MIN_FD || fd >= MAX_FILES) {
         return EBADF;
     }
 
@@ -240,7 +240,7 @@ int ft_remove_file(struct file_table *ftable, int fd){
 
 int file_seek(struct file_table *ftable, int fd){
     KASSERT(ftable != NULL);
-    if (fd < 0 || fd >= MAX_FILES) {
+    if (fd < MIN_FD || fd >= MAX_FILES) {
         return EBADF;
     }
     struct file *file = ftable -> files[fd];
