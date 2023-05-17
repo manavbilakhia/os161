@@ -66,6 +66,7 @@ struct proc {
 	unsigned p_numthreads;		/* Number of threads in this process */
 	pid_t process_id;
 	pid_t parent_process_id;
+	bool finished;
 
 	/* VM */
 	struct addrspace *p_addrspace;	/* virtual address space */
@@ -81,6 +82,7 @@ extern struct proc *kproc;
 
 /* Call once during system startup to allocate data structures. */
 void proc_bootstrap(void);
+struct proc * proc_create(const char *name);
 
 /* Create a fresh process for use by runprogram(). */
 struct proc *proc_create_runprogram(const char *name);

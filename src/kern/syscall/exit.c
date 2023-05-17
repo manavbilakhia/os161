@@ -11,6 +11,7 @@
 #include <thread.h>
 #include <synch.h>
 #include <proc_table.h>
+#include <spl.h>
 
 
 int
@@ -21,6 +22,7 @@ sys__exit(int exitcode){
     KASSERT(curthread != NULL);
     splhigh();
     // close the open files of the proc
+    (void)exitcode;
     remove_process(global_proc_table, curproc->process_id);
     proc_destroy(curproc);
     thread_exit();

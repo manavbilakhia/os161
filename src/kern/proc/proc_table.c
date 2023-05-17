@@ -8,6 +8,8 @@
 
 #define MAX_ACTIVE_PROCS 1000
 
+struct proc_table *global_proc_table;
+
 void proc_table_create(struct proc_table ** pt){
     /*
     Creates a process table.
@@ -70,7 +72,7 @@ struct proc * get_proc(int pid, struct proc_table *pt){
 
     spinlock_release(&pt -> pt_lock);
 
-    return &p;
+    return p;
 }
 
 pid_t get_available_pid(struct proc_table *pt){

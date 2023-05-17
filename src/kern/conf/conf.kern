@@ -476,7 +476,7 @@ file        shared_buffer/shared_buffer_test.c
 file        syscall/exit.c
 file        syscall/write.c
 file        syscall/fork.c
-
+file        syscall/waitpid.c
 
 file        proc/proc_table.c
 

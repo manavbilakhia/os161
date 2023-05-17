@@ -49,6 +49,8 @@
 #include <addrspace.h>
 #include <vnode.h>
 #include <proc_table.h>
+#include <lib.h>
+
 
 /*
  * The process for the kernel; this holds all the kernel-only threads.
@@ -58,7 +60,7 @@ struct proc *kproc;
 /*
  * Create a proc structure.
  */
-static
+
 struct proc *
 proc_create(const char *name)
 {
@@ -85,7 +87,9 @@ proc_create(const char *name)
 
 	proc->process_id = get_available_pid(global_proc_table);
 	add_proc(proc -> process_id, global_proc_table, proc);
-	proc->parent_process_id = NULL;
+	proc->parent_process_id = -1;
+
+	proc->finished = 0; // why can't i set this to false????
 
 	return proc;
 }
