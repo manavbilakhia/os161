@@ -194,3 +194,13 @@ int ft_remove_file(struct file_table *ftable, int fd){
     lock_release(ftable -> lock);
     return fd;
 }
+
+int file_seek(struct file_table *ftable, int fd){
+    KASSERT(ftable != NULL);
+    struct file *file = ftable -> files[fd];
+    if(file == NULL){
+        return EBADF;
+    }
+
+    return file -> offset;
+}
