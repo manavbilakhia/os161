@@ -16,6 +16,10 @@
 int
 sys_close(int fd){
     KASSERT(curthread != NULL);
+
+    struct file *file = curproc -> p_filetable -> files[fd];
+    lock_acquire(file->lock);
+
     int result;
 
     result = ft_remove_file(curproc -> p_filetable, fd);
@@ -23,5 +27,6 @@ sys_close(int fd){
         return EBADF;
     }
 
+    lock_release(file->lock);
     return 0;
 }
