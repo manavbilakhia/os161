@@ -477,5 +477,6 @@ file        syscall/exit.c
 file        syscall/write.c
 file        syscall/open.c
 file        syscall/read.c
+file        syscall/chdir.c
 
 file        file_table/file_table.c
