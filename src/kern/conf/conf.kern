@@ -479,5 +479,6 @@ file        syscall/open.c
 file        syscall/close.c
 file        syscall/read.c
 file        syscall/lseek.c
+file        syscall/getcwd.c
 
 file        file_table/file_table.c

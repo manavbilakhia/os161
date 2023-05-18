@@ -132,9 +132,13 @@ syscall(struct trapframe *tf)
 		case SYS_lseek:
 		err = sys_lseek((int) tf->tf_a0, (off_t) tf->tf_a1, (int) tf->tf_a2);
 		break;
-		
+
 		case SYS_close:
 		err = sys_close((int) tf->tf_a0);
+		break;
+
+		case SYS___getcwd:
+		err = sys___getcwd((char *) tf->tf_a0, (size_t) tf->tf_a1);
 		break;
 
 		case SYS_read: 

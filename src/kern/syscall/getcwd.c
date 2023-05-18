@@ -17,17 +17,22 @@ sys___getcwd(char *buf, size_t buflen){
     struct iovec iov;
     
     spinlock_acquire(&curproc->p_lock);
+
+    if(buf == NULL){
+        spinlock_release(&curproc->p_lock);
+        return -EFAULT;
+    }
     
-    struct vnode *cwd_path = curproc -> p_cwd;
     if(curproc -> p_cwd == NULL){
-        return ENOENT;
+        spinlock_release(&curproc->p_lock);
+        return -ENOENT;
     }
     uio_kinit(&iov, &uio, buf, buflen, 0, UIO_READ);
 
     int result = vfs_getcwd(&uio);
     if(result){
         spinlock_release(&curproc->p_lock);
-        return result;
+        return -result;
     }
 
     int ret = buflen - uio.uio_resid;

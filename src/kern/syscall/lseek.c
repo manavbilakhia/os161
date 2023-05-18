@@ -13,19 +13,26 @@
 #include <kern/seek.h>
 #include <synch.h>
 #include <stat.h>
+#include <spinlock.h>
 
 off_t
 sys_lseek(int fd, off_t pos, int whence){
     struct stat stat;
+    struct spinlock lock;
     off_t new_pos;
     int ret;
 
+    spinlock_init(&lock);
     if (fd < 0 || fd >= MAX_FILES) {
         return -EBADF;
     }
 
     struct file *file = curproc->p_filetable->files[fd];
     if(file == NULL){
+        return -EBADF;
+    }
+
+    if(!VOP_ISSEEKABLE(file -> vn)){
         return -ESPIPE;
     }
 
@@ -47,8 +54,8 @@ sys_lseek(int fd, off_t pos, int whence){
         return -EINVAL;
     }
 
-    spinlock_acquire(&curproc -> p_lock);
+    //spinlock_acquire(&lock);
     file -> offset = new_pos;
-    spinlock_release(&curproc -> p_lock);
+    //spinlock_release(&lock);
     return new_pos;
 }
