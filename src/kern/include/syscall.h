@@ -78,4 +78,7 @@ sys_open(const char *filename, int flags);
 ssize_t
 sys_read(int fd, void *buf, size_t buflen);
 
+int
+sys___getcwd(char *buf, size_t buflen);
+
 #endif /* _SYSCALL_H_ */
