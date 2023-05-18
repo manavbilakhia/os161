@@ -79,6 +79,6 @@ ssize_t
 sys_read(int fd, void *buf, size_t buflen);
 
 off_t
-lseek(int fd, off_t pos, int whence);
+sys_lseek(int fd, off_t pos, int whence);
 
 #endif /* _SYSCALL_H_ */

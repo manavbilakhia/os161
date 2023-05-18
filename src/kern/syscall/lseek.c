@@ -15,7 +15,7 @@
 #include <stat.h>
 
 off_t
-lseek(int fd, off_t pos, int whence){
+sys_lseek(int fd, off_t pos, int whence){
     struct stat stat;
     off_t new_pos;
     int ret;
