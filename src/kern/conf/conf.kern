@@ -476,6 +476,7 @@ file        shared_buffer/shared_buffer_test.c
 file        syscall/exit.c
 file        syscall/write.c
 file        syscall/open.c
+file        syscall/close.c
 file        syscall/read.c
 file        syscall/lseek.c
 
