@@ -10,38 +10,34 @@
 #include <kern/fcntl.h>
 #include <copyinout.h>
 #include <file_table.h>
+#include <kern/unistd.h>
 
-//ssize_t
-//sys_write(int fd, const void *buf, size_t nbytes){
-//    char *print;
-//    print = (char *) kmalloc(nbytes);
-//    int ret;
-//    (void) fd;
-//    ret = copyin((const_userptr_t) buf, print, nbytes);
-//    (void) ret;
-//    kprintf("%s", ((char *) buf));
-//    return nbytes;
-//}
 
 ssize_t
 sys_write(int fd, const void *buf, size_t nbytes){
-//code to write on the terminal
-    if (fd < 3)
-    {
-        char *print;    
-        print = (char *) kmalloc(nbytes); 
-        int ret = copyin((const_userptr_t) buf, print, nbytes);
-        (void) ret;
-        kprintf("%s", ((char *) buf));
-        return nbytes;   
-    }
-    else
-    {
     // Check if fd is valid
-    if (fd < 0 || fd >= MAX_FILES) {
+    int result;
+    if (fd < 0 || fd >= MAX_FILES || buf == NULL) {
         return -EBADF;
     }
+    char *buffer = (char* ) kmalloc (nbytes);
+    if (buffer == NULL)
+    {
+        return -EIO;
+    }
+    result = copyin((const_userptr_t)buf, buffer, nbytes);
+    if (result !=0)
+        return -EFAULT;
+    // handle console output
+    if (fd == STDOUT_FILENO || fd == STDERR_FILENO) {
+        size_t i;
 
+        for (i = 0; i < nbytes; i++) {
+            putch(buffer[i]);
+        }
+
+        return i; // return the number of characters written
+    }
     // Look up the file and check wiuth some basic error codes
     struct file *file = curproc->p_filetable->files[fd];
     if (file == NULL || !(file->flags & O_WRONLY || file->flags & O_RDWR || file->flags & O_ACCMODE || file->flags & O_RDONLY)) {
@@ -54,7 +50,7 @@ sys_write(int fd, const void *buf, size_t nbytes){
     struct uio write_uio;
     struct iovec write_iov;
     uio_kinit(&write_iov, &write_uio, (void *)buf, nbytes, file->offset, UIO_WRITE);
-    int result = VOP_WRITE(file->vn, &write_uio);
+    result = VOP_WRITE(file->vn, &write_uio);
     if (result) {
         lock_release(file->lock);
         return result;
@@ -68,5 +64,5 @@ sys_write(int fd, const void *buf, size_t nbytes){
     // Return the number of bytes written
     return nbytes - write_uio.uio_resid;
     }
-}
+
 
