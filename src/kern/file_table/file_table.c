@@ -111,43 +111,44 @@ bool ft_full(struct file_table *ftable){
 /**
  * Creates a file atomic and returns the file descriptor
 */
-int file_create(struct file_table *ftable, char *path){
+int file_create(struct file_table *ftable, char *path, int flags, struct vnode *vn){
     if (ft_full(ftable)){
         return ENFILE;
     }
     KASSERT(!ft_full(ftable));
-    lock_acquire(ftable -> lock);
+    //lock_acquire(ftable -> lock);
 
     struct file *file = kmalloc(sizeof(struct file));
     if (file == NULL){
-        lock_release(ftable->lock);
+        //lock_release(ftable->lock);
         return ENOMEM;
     }
 
     file -> path = kstrdup(path);
     if(file ->path == NULL){
         kfree(file);
-        lock_release(ftable->lock);
+        //lock_release(ftable->lock);
         return ENOMEM;
     }
 
+    file -> flags = flags;
+    file -> vn = vn;
+    file -> offset = 0;
     file -> lock = lock_create("file_lock");
     if(file -> lock == NULL){
         kfree(file -> path);
         kfree(file);
-        lock_release(ftable->lock);
+        //lock_release(ftable->lock);
         return ENOMEM;
     }
 
-    file -> vn = NULL;
-    file -> offset = 0;
     if(file -> vn != NULL) {
         VOP_INCREF(file -> vn);
     }
 
     int fd = ft_add_file(ftable, file);
     
-    lock_release(ftable -> lock);
+    //lock_release(ftable -> lock);
     return fd;
 }
 

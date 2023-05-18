@@ -39,13 +39,13 @@ sys_write(int fd, const void *buf, size_t nbytes){
     {
     // Check if fd is valid
     if (fd < 0 || fd >= MAX_FILES) {
-        return EBADF;
+        return -EBADF;
     }
 
     // Look up the file and check wiuth some basic error codes
     struct file *file = curproc->p_filetable->files[fd];
     if (file == NULL || !(file->flags & O_WRONLY || file->flags & O_RDWR || file->flags & O_ACCMODE || file->flags & O_RDONLY)) {
-        return EBADF;
+        return -EBADF;
     }
     KASSERT (file->lock != NULL);
     lock_acquire(file->lock);

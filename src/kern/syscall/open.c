@@ -32,7 +32,6 @@ int sys_open(const char *filename, int flags){
         return ENOMEM;
     }
 
-
     result = copyinstr((userptr_t)filename, kpath, PATH_MAX+1, &actual);
     if(result){
         kfree(kpath);
@@ -50,7 +49,7 @@ int sys_open(const char *filename, int flags){
     }
 
     // Create file and return file descriptor or an error code
-    int fd = file_create(ftable, kpath);
+    int fd = file_create(ftable, kpath, flags, vn);
     if(fd < MIN_FD){
         vfs_close(vn);
         kfree(kpath);
@@ -59,6 +58,7 @@ int sys_open(const char *filename, int flags){
 
     //Update vnode in file
     ftable->files[fd]->vn = vn;
+    ft_add_file(kproc->p_filetable, ftable->files[fd]);
 
     kfree(kpath);
     return fd;
