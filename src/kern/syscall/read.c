@@ -13,25 +13,30 @@ sys_read(int fd, void *buf, size_t buflen) {
     struct file *file;
     struct iovec iov;
     struct uio ku;
-    int *retval;
 
     // Validate file descriptor
     if (fd < 0 || fd >= MAX_FILES) {
-        return EBADF;
+        return -EBADF;
     }
 
     // Get file from file table
     file = curproc->p_filetable->files[fd];
     if (file == NULL) {
-        return EBADF;
+        return -EBADF;
     }
 
     // Check for read permission
     if ((file->flags & O_ACCMODE) == O_WRONLY) {
-        return EBADF;
+        return -EBADF;
+    }
+
+    if (buf == NULL)
+    {
+        return -EFAULT;
     }
 
     // Lock file
+    KASSERT (file->lock != NULL);
     lock_acquire(file->lock);
 
     // Setup uio structure
@@ -51,7 +56,5 @@ sys_read(int fd, void *buf, size_t buflen) {
     lock_release(file->lock);
 
     // Return number of bytes read
-    *retval = buflen - ku.uio_resid;
-
-    return 0;
+    return buflen - ku.uio_resid;
 }
