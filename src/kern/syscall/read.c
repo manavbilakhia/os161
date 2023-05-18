@@ -7,6 +7,7 @@
 #include <uio.h>
 #include <kern/errno.h>
 #include <kern/fcntl.h>
+#include <kern/unistd.h>
 
 ssize_t
 sys_read(int fd, void *buf, size_t buflen) {
@@ -14,9 +15,31 @@ sys_read(int fd, void *buf, size_t buflen) {
     struct iovec iov;
     struct uio ku;
 
-    // Validate file descriptor
-    if (fd < 0 || fd >= MAX_FILES) {
+    if (fd < 0 || fd >= MAX_FILES || buf == NULL) {
         return -EBADF;
+    }
+
+    // handle console input
+    if (fd == STDIN_FILENO) {
+        size_t i;
+        int ch;
+        char *buffer = (char *)buf;
+
+        for (i = 0; i < buflen; i++) {
+            ch = getch();
+
+            if (ch < 0) {
+                return ch; // getch() returned an error
+            }
+
+            buffer[i] = ch;
+
+            if (ch == '\n' || ch == '\r') {
+                break; // end of line
+            }
+        }
+
+        return i; // return the number of characters read
     }
 
     // Get file from file table
