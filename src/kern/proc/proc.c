@@ -50,6 +50,7 @@
 #include <vnode.h>
 #include <proc_table.h>
 #include <lib.h>
+#include <file_table.h>
 
 
 /*
@@ -94,6 +95,7 @@ proc_create(const char *name)
 	proc->finished = 0; // why can't i set this to false????
 
 	proc->exit_code = -1;
+	proc -> p_filetable = ft_create();
 
 	return proc;
 }

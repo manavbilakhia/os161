@@ -39,6 +39,7 @@
 #include <spinlock.h>
 #include <types.h>
 #include <synch.h>
+#include <file_table.h>
 
 struct addrspace;
 struct thread;
@@ -73,6 +74,7 @@ struct proc {
 	pid_t parent_process_id;
 	bool finished;
 	int exit_code;
+	struct file_table *p_filetable;
 
 	/* VM */
 	struct addrspace *p_addrspace;	/* virtual address space */

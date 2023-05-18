@@ -480,3 +480,7 @@ file        syscall/waitpid.c
 
 file        proc/proc_table.c
 file        proc/proc_table_test.c
+file        syscall/open.c
+file        syscall/read.c
+
+file        file_table/file_table.c
