@@ -10,42 +10,56 @@
 #include <syscall.h>
 #include <thread.h>
 #include <synch.h>
+#include <vfs.h>
+#include <limits.h>
+#include <copyinout.h>
 
-
-int
-sys_open(const char *filename, int flags)
-{
-    struct file_table *ftable =curproc ->p_filetable; //ask matt how to get this to work
-    struct vnode *v; 
-    struct file *file;
-    int result; // to store return value from vfs_open
-    int *retval;
-
-    // opening the filetable using vfs
-    result  = vfs_open((char *)filename, flags, 0, &v);
-    if (result)
-    {
-        return result; // this is the file handle that goes to read, write, close
+int sys_open(const char *filename, int flags){
+    //Check if filename is a valid pointer
+    if(filename == NULL){
+        return EFAULT;
     }
 
-    //creating a new file struct
-    file = file_create(ftable);
-    if (file == NULL)
-    {
-        vfs_close(v);
-        return ENFILE;
+    struct file_table *ftable = curproc->p_filetable;
+    KASSERT(ftable != NULL);
+    char *kpath;
+    size_t actual;
+    int result;
+
+    // Copy the filename into kernel space
+    kpath = (char *) kmalloc(sizeof(char)*(PATH_MAX+1));
+    if(kpath == NULL){
+        return ENOMEM;
     }
-    // setting vnode and other attribute in the file strruct
 
-    file->vn = v;
-    file->offset= 0;
-    file->refcount = 1;
 
-    ft_add_file(ftable, file); // adding file to file table
+    result = copyinstr((userptr_t)filename, kpath, PATH_MAX+1, &actual);
+    if(result){
+        kfree(kpath);
+        return result;
+    }
 
-    //seting the file descriptor as the return value
-    *retval = file->fd;
+    // Ensure filename is null-terminated stackoverflow is the big beast
+    kpath[actual-1] = '\0';
 
-    return 0;
+    struct vnode *vn;
+    result = vfs_open(kpath, flags, 0, &vn);
+    if (result) {
+        kfree(kpath);
+        return result;
+    }
 
+    // Create file and return file descriptor or an error code
+    int fd = file_create(ftable, kpath);
+    if(fd < 0){
+        vfs_close(vn);
+        kfree(kpath);
+        return fd;
+    }
+
+    //Update vnode in file
+    ftable->files[fd]->vn = vn;
+
+    kfree(kpath);
+    return fd;
 }
