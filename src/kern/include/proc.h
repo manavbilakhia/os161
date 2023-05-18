@@ -72,6 +72,7 @@ struct proc {
 	pid_t process_id;
 	pid_t parent_process_id;
 	bool finished;
+	int exit_code;
 
 	/* VM */
 	struct addrspace *p_addrspace;	/* virtual address space */
