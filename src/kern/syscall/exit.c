@@ -15,22 +15,20 @@
 #include <file_table.h>
 
 
-int
-sys__exit(int exitcode){
+void 
+sys__exit(int * exitcode){
     /*
      * Removes a process from the table of active processes.
      */
+    (void)exitcode; 
     if (curthread == NULL || curproc == NULL){ 
-        exitcode = -1; // SWITCH TO PROPER ERROR CODE
-        return -1;
+        *exitcode = -1;
     }
     splhigh();
-    ft_destroy(curproc ->p_filetable);
-    (void)exitcode;
+    ft_destroy(curproc -> p_filetable); // consider putting this step in proc_destroy
     remove_process(global_proc_table, curproc->process_id);
     proc_destroy(curproc);
     thread_exit();
 
-    exitcode = 0;
-    return 0;
+    *exitcode = 0;
 }

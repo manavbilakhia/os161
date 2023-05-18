@@ -92,7 +92,7 @@ proc_create(const char *name)
 	add_proc(proc -> process_id, global_proc_table, proc);
 	proc->parent_process_id = -1;
 
-	proc->finished = 0; // why can't i set this to false????
+	proc->finished = false; 
 
 	proc->exit_code = -1;
 	proc -> p_filetable = ft_create();

@@ -4,7 +4,7 @@
 #include <proc_table.h>
 #include <addrspace.h>
 #include <mips/trapframe.h>
-//#include <file_table.h>
+#include <file_table.h>
 #include <kern/errno.h>
 #include <kern/syscall.h>
 #include <current.h>
@@ -18,9 +18,11 @@ int sys_fork(struct trapframe *tf_parent, int * return_value){
      */
     KASSERT(curproc->p_addrspace != NULL);
 
-    // create new proc
+    // create new proc and associate processes
     const char *child_name = "child_proc";
     struct proc *child = proc_create(child_name);
+    child->parent_process_id = curproc -> process_id;
+
     if (child == NULL) { return ENOMEM; }
 
     // get address space, file table, and trapframe for new proc
@@ -36,9 +38,9 @@ int sys_fork(struct trapframe *tf_parent, int * return_value){
 
     if (tf_child == NULL) { return ENOMEM; }
 
-    //struct file_table * parent_file_table = curproc->p_filetable; // need to get filetable merge (git)
-    //struct file_table * child_file_table = child->p_filetable;
-    //*parent_file_table = *child_file_table;
+    struct file_table * parent_file_table = curproc->p_filetable; // need to get filetable merge (git)
+    struct file_table * child_file_table = child->p_filetable;
+    *parent_file_table = *child_file_table;
 
     int fork_result = thread_fork("creating entry point for new proc", child, child_entry_point, tf_child, (unsigned long) address_space_child);
     if (fork_result != 0) { return fork_result; } // need to deallocate space in these if checks, make sure to stop memory leaks

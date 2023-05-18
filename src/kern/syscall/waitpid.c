@@ -25,8 +25,8 @@ pid_t sys_waitpid(pid_t child_pid, userptr_t status, int options){
     if (status == NULL){ return EFAULT; }
     if (get_proc(child_pid, global_proc_table)->parent_process_id == curproc->parent_process_id){ return ECHILD; }
 
-    lock_acquire(waitpidlock);
-    if (get_proc(child_pid, global_proc_table) -> finished == 1){ //why can't i use true? ASK MATT ABOUT THIS HACK
+    //lock_acquire(waitpidlock);
+    if (get_proc(child_pid, global_proc_table) -> finished == true){ 
         //copyout() NEED TO FIGURE OUT HOW TO COPYOUT DATA copyout(exitcode, status, sizeof(int));
         proc_destroy(get_proc(child_pid, global_proc_table));
         return child_pid;

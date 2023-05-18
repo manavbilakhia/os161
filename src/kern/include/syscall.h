@@ -65,7 +65,7 @@ int sys___time(userptr_t user_seconds, userptr_t user_nanoseconds);
  * Causes the current process to exit.
  */
 
-int sys__exit(int exitcode);
+void sys__exit(int * exitcode);
 
 int sys_fork(struct trapframe *tf_parent, int * return_value);
 pid_t sys_waitpid(pid_t child_pid, userptr_t status, int options);
