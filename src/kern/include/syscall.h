@@ -87,4 +87,6 @@ sys_lseek(int fd, off_t pos, int whence);
 int
 sys___getcwd(char *buf, size_t buflen);
 
+int	
+sys_chdir(const char *pathname);
 #endif /* _SYSCALL_H_ */
