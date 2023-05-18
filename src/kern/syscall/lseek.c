@@ -54,8 +54,8 @@ sys_lseek(int fd, off_t pos, int whence){
         return -EINVAL;
     }
 
-    //spinlock_acquire(&lock);
+    spinlock_acquire(&lock);
     file -> offset = new_pos;
-    //spinlock_release(&lock);
+    spinlock_release(&lock);
     return new_pos;
 }

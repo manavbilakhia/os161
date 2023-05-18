@@ -22,11 +22,16 @@ sys___getcwd(char *buf, size_t buflen){
         spinlock_release(&curproc->p_lock);
         return -EFAULT;
     }
+
+    if(buflen < 1){
+        return -EFAULT;
+    }
     
     if(curproc -> p_cwd == NULL){
         spinlock_release(&curproc->p_lock);
         return -ENOENT;
     }
+
     uio_kinit(&iov, &uio, buf, buflen, 0, UIO_READ);
 
     int result = vfs_getcwd(&uio);
