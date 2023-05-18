@@ -25,6 +25,18 @@
 
 ssize_t
 sys_write(int fd, const void *buf, size_t nbytes){
+//code to write on the terminal
+    if (fd < 3)
+    {
+        char *print;    
+        print = (char *) kmalloc(nbytes); 
+        int ret = copyin((const_userptr_t) buf, print, nbytes);
+        (void) ret;
+        kprintf("%s", ((char *) buf));
+        return nbytes;   
+    }
+    else
+    {
     // Check if fd is valid
     if (fd < 0 || fd >= MAX_FILES) {
         return EBADF;
@@ -55,5 +67,6 @@ sys_write(int fd, const void *buf, size_t nbytes){
 
     // Return the number of bytes written
     return nbytes - write_uio.uio_resid;
+    }
 }
 
