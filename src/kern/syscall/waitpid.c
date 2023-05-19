@@ -36,7 +36,7 @@ pid_t sys_waitpid(pid_t child_pid, userptr_t status, int options){
         return child_pid;
     }
     else{
-        while (get_proc(child_pid, global_proc_table) -> finished != 1){
+        while (get_proc(child_pid, global_proc_table) -> finished != true){
             cv_wait(waitpidcv, waitpidlock);
         }
         copyout((const void *)&get_proc(child_pid, global_proc_table)-> exit_code, status, sizeof(int));

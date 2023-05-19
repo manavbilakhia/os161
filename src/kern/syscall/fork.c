@@ -72,5 +72,5 @@ static void child_entry_point(void * data1, unsigned long data2){
     tf_child.tf_epc += 4;
     KASSERT(data1 != NULL);
     kfree(data1);
-    mips_usermode(&tf_child); // NEED TO SET PARENT_PROCESS_ID (ASSUMING THIS STRATEGY IS STILL USED)
+    mips_usermode(&tf_child); 
 }
