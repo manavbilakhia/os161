@@ -78,12 +78,12 @@ struct file_table *ft_create(void){
 int ft_look_up(struct file_table *ftable, int fd){
     KASSERT(ftable != NULL);
     if (fd < 0 || fd >= MAX_FILES) {
-        return EBADF;
+        return -EBADF;
     }
     struct file *target = ftable -> files[fd];
 
     if(target == NULL){
-        return EBADF;
+        return -EBADF;
     }
 
     return fd;
@@ -113,7 +113,7 @@ bool ft_full(struct file_table *ftable){
 */
 int file_create(struct file_table *ftable, char *path, int flags, struct vnode *vn){
     if (ft_full(ftable)){
-        return ENFILE;
+        return -ENFILE;
     }
     KASSERT(!ft_full(ftable));
     //lock_acquire(ftable -> lock);
@@ -121,14 +121,14 @@ int file_create(struct file_table *ftable, char *path, int flags, struct vnode *
     struct file *file = kmalloc(sizeof(struct file));
     if (file == NULL){
         //lock_release(ftable->lock);
-        return ENOMEM;
+        return -ENOMEM;
     }
 
     file -> path = kstrdup(path);
     if(file ->path == NULL){
         kfree(file);
         //lock_release(ftable->lock);
-        return ENOMEM;
+        return -ENOMEM;
     }
 
     file -> flags = flags;
@@ -139,7 +139,7 @@ int file_create(struct file_table *ftable, char *path, int flags, struct vnode *
         kfree(file -> path);
         kfree(file);
         //lock_release(ftable->lock);
-        return ENOMEM;
+        return -ENOMEM;
     }
 
     if(file -> vn != NULL) {
@@ -184,7 +184,7 @@ int ft_add_file(struct file_table *ftable, struct file *file){
     if (fd == MAX_FILES)
     {
         lock_release(ftable -> lock);
-        return ENFILE;
+        return -ENFILE;
     }
     ftable -> files[fd] = file;
     ftable -> number_files++;
@@ -197,7 +197,7 @@ int copy_file(struct file_table *ftable, int fd){
     lock_acquire(ftable -> lock);
         if (fd < MIN_FD || fd >= MAX_FILES) {
             lock_release(ftable -> lock);
-        return EBADF;
+        return -EBADF;
     }
     struct file *copy = ftable -> files[fd];
     VOP_INCREF(copy -> vn);
@@ -214,12 +214,12 @@ int ft_remove_file(struct file_table *ftable, int fd){
     //lock_acquire(ftable -> lock);
 
     if (fd < MIN_FD || fd >= MAX_FILES) {
-        return EBADF;
+        return -EBADF;
     }
 
     struct file *target = ftable -> files[fd];
     if (target == NULL){
-        return EBADF;
+        return -EBADF;
     }
 
     struct file *file = ftable -> files[fd];
@@ -242,11 +242,11 @@ int ft_remove_file(struct file_table *ftable, int fd){
 int file_seek(struct file_table *ftable, int fd){
     KASSERT(ftable != NULL);
     if (fd < MIN_FD || fd >= MAX_FILES) {
-        return EBADF;
+        return -EBADF;
     }
     struct file *file = ftable -> files[fd];
     if(file == NULL){
-        return EBADF;
+        return -EBADF;
     }
 
     return file -> offset;

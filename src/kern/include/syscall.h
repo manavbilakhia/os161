@@ -89,4 +89,7 @@ sys___getcwd(char *buf, size_t buflen);
 
 int	
 sys_chdir(const char *pathname);
+
+int
+sys_dup2(int oldfd, int newfd);
 #endif /* _SYSCALL_H_ */

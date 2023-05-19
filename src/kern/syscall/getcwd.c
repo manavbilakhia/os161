@@ -15,6 +15,8 @@ int
 sys___getcwd(char *buf, size_t buflen){
     struct uio uio;
     struct iovec iov;
+    char tmp_buf[(int) buflen];
+
     
     spinlock_acquire(&curproc->p_lock);
 
@@ -24,6 +26,7 @@ sys___getcwd(char *buf, size_t buflen){
     }
 
     if(buflen < 1){
+        spinlock_release(&curproc->p_lock);
         return -EFAULT;
     }
     
@@ -34,7 +37,13 @@ sys___getcwd(char *buf, size_t buflen){
 
     uio_kinit(&iov, &uio, buf, buflen, 0, UIO_READ);
 
-    int result = vfs_getcwd(&uio);
+    int result = copyoutstr((const void *) buf, (userptr_t) tmp_buf, buflen, (size_t *) uio.uio_resid);
+    if(result){
+        spinlock_release(&curproc->p_lock);
+        return -EFAULT;
+    }
+
+    result = vfs_getcwd(&uio);
     if(result){
         spinlock_release(&curproc->p_lock);
         return -result;

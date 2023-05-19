@@ -481,5 +481,6 @@ file        syscall/read.c
 file        syscall/lseek.c
 file        syscall/getcwd.c
 file        syscall/chdir.c
+file        syscall/dup2.c
 
 file        file_table/file_table.c
