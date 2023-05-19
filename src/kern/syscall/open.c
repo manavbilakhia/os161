@@ -17,7 +17,7 @@
 int sys_open(const char *filename, int flags){
     //Check if filename is a valid pointer
     if(filename == NULL){
-        return EFAULT;
+        return -EFAULT;
     }
 
     struct file_table *ftable = curproc->p_filetable;
@@ -29,13 +29,13 @@ int sys_open(const char *filename, int flags){
     // Copy the filename into kernel space
     kpath = (char *) kmalloc(sizeof(char)*(PATH_MAX+1));
     if(kpath == NULL){
-        return ENOMEM;
+        return -ENOMEM;
     }
 
     result = copyinstr((userptr_t)filename, kpath, PATH_MAX+1, &actual);
     if(result){
         kfree(kpath);
-        return result;
+        return -result;
     }
 
     // Ensure filename is null-terminated stackoverflow is the big beast
@@ -45,7 +45,7 @@ int sys_open(const char *filename, int flags){
     result = vfs_open(kpath, flags, 0, &vn);
     if (result) {
         kfree(kpath);
-        return result;
+        return -result;
     }
 
     // Create file and return file descriptor or an error code

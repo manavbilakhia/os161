@@ -15,15 +15,28 @@ sys_read(int fd, void *buf, size_t buflen) {
     struct iovec iov;
     struct uio ku;
 
-    if (fd < 0 || fd >= MAX_FILES || buf == NULL) {
+    if (fd < 0 || fd >= MAX_FILES) {
         return -EBADF;
     }
 
+        if (buf == NULL)
+    {
+        return -EFAULT;
+    }
+
     // handle console input
+    if (fd == STDOUT_FILENO || fd == STDERR_FILENO)
+    {
+        return -EBADF;
+    }
     if (fd == STDIN_FILENO) {
         size_t i;
         int ch;
         char *buffer = (char *)buf;
+        if (buffer == NULL)
+        {
+            return -EIO;
+        }
 
         for (i = 0; i < buflen; i++) {
             ch = getch();
@@ -35,6 +48,7 @@ sys_read(int fd, void *buf, size_t buflen) {
             buffer[i] = ch;
 
             if (ch == '\n' || ch == '\r') {
+                buffer[i] = '\n';
                 break; // end of line
             }
         }
@@ -53,11 +67,6 @@ sys_read(int fd, void *buf, size_t buflen) {
         return -EBADF;
     }
 
-    if (buf == NULL)
-    {
-        return -EFAULT;
-    }
-
     // Lock file
     KASSERT (file->lock != NULL);
     lock_acquire(file->lock);
@@ -69,7 +78,7 @@ sys_read(int fd, void *buf, size_t buflen) {
     int result = VOP_READ(file->vn, &ku);
     if (result) {
         lock_release(file->lock);
-        return result;
+        return -result;
     }
 
     // Update offset
