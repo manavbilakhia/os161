@@ -146,7 +146,11 @@ syscall(struct trapframe *tf)
 			break;
 
 		case SYS___getcwd:
-		err = sys___getcwd((char *) tf->tf_a0, (size_t) tf->tf_a1);
+		retval = sys___getcwd((char *) tf->tf_a0, (size_t) tf->tf_a1);
+			if (retval < 0) 
+                err = -retval; 
+            else 
+                err = 0;
 		break;
 
 		case SYS_read: 

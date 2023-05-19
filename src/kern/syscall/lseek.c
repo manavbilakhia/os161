@@ -36,6 +36,9 @@ sys_lseek(int fd, off_t pos, int whence){
         return -ESPIPE;
     }
 
+    if(whence < 0){
+        return -EINVAL;
+    }
     if(pos + whence < 0){
         return -EINVAL;
     }
