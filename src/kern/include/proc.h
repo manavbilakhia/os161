@@ -37,6 +37,9 @@
  */
 
 #include <spinlock.h>
+#include <types.h>
+#include <synch.h>
+#include <file_table.h>
 
 struct addrspace;
 struct thread;
@@ -59,10 +62,19 @@ struct vnode;
  * thread_switch needs to be able to fetch the current address space
  * without sleeping.
  */
+
+extern struct lock * waitpidlock;
+extern struct cv * waitpidcv;
+
 struct proc {
 	char *p_name;			/* Name of this process */
 	struct spinlock p_lock;		/* Lock for this structure */
 	unsigned p_numthreads;		/* Number of threads in this process */
+	pid_t process_id;
+	pid_t parent_process_id;
+	bool finished;
+	int exit_code;
+	struct file_table *p_filetable;
 
 	/* VM */
 	struct addrspace *p_addrspace;	/* virtual address space */
@@ -78,6 +90,7 @@ extern struct proc *kproc;
 
 /* Call once during system startup to allocate data structures. */
 void proc_bootstrap(void);
+struct proc * proc_create(const char *name);
 
 /* Create a fresh process for use by runprogram(). */
 struct proc *proc_create_runprogram(const char *name);

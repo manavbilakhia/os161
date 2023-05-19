@@ -98,6 +98,9 @@ struct trapframe {
  */
 __DEAD void mips_usermode(struct trapframe *tf);
 
+struct trapframe * trapframe_copy(struct trapframe * src);
+
+
 /*
  * Arrays used to load the kernel stack and curthread on trap entry.
  */

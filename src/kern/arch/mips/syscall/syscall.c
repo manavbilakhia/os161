@@ -109,7 +109,62 @@ syscall(struct trapframe *tf)
 				 (userptr_t)tf->tf_a1);
 		break;
 
-	    /* Add stuff here */
+	    case SYS__exit:
+		sys__exit((int*) tf->tf_a0);
+		err = tf->tf_a0;
+		break;
+
+		case SYS_write:
+		retval = sys_write((int) tf->tf_a0, (const void*) tf->tf_a1, (size_t) tf->tf_a2);
+        if (retval < 0) 
+                err = -retval; 
+        else 
+                err = 0; 
+        break;
+
+		case SYS_fork:
+		err = sys_fork(tf, (int *) tf->tf_a0); 
+		break;
+
+		case SYS_getpid:
+		err = sys_getpid();
+		break;
+
+		case SYS_waitpid:
+		err = sys_waitpid((pid_t) tf->tf_a0, (userptr_t) tf->tf_a1, (int) tf->tf_a2);
+		break;
+
+		case SYS_open:
+		retval = sys_open((char *) tf->tf_a0, (int) tf->tf_a1);
+		if (retval <0)
+		{
+			err = -retval;
+		}
+		else
+		{
+			err = 0;
+		}
+		break;
+
+		case SYS_read: 
+        retval = sys_read((int) tf->tf_a0, (void *) tf->tf_a1, (size_t) tf->tf_a2); 
+        if (retval < 0) 
+                err = -retval; 
+        else 
+                err = 0; 
+        break;
+
+	  	case SYS_chdir:
+		err = sys_chdir((const char* )tf->tf_a0);
+		break;
+
+		case SYS_dup2:
+		retval = sys_dup2((int) tf->tf_a0, (int)tf->tf_a1);
+		    if (retval < 0) 
+            err = -retval; 
+        else 
+            err = 0; 
+        break;
 
 	    default:
 		kprintf("Unknown syscall %d\n", callno);
