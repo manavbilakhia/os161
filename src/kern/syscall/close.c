@@ -12,6 +12,7 @@
 #include <synch.h>
 #include <file_table.h>
 #include <vfs.h>
+#include <file_table.h>
 
 int
 sys_close(int fd){
@@ -25,11 +26,12 @@ sys_close(int fd){
     if (file == NULL) {
         return -EBADF;
     }
+    /* Issue ith STDIN in fle table */
 
     lock_acquire(file->lock);
-
+    
     vfs_close(file -> vn);
-
+    
     lock_release(file->lock);
     return 0;
 }

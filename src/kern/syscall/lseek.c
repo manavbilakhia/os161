@@ -23,23 +23,29 @@ sys_lseek(int fd, off_t pos, int whence){
     int ret;
 
     spinlock_init(&lock);
+    spinlock_acquire(&lock);
     if (fd < 0 || fd >= MAX_FILES) {
+        spinlock_release(&lock);
         return -EBADF;
     }
 
     struct file *file = curproc->p_filetable->files[fd];
     if(file == NULL){
+        spinlock_release(&lock);
         return -EBADF;
     }
 
     if(!VOP_ISSEEKABLE(file -> vn)){
+        spinlock_release(&lock);
         return -ESPIPE;
     }
 
     if(whence < 0){
+        spinlock_release(&lock);
         return -EINVAL;
     }
     if(pos + whence < 0){
+        spinlock_release(&lock);
         return -EINVAL;
     }
 
@@ -54,10 +60,10 @@ sys_lseek(int fd, off_t pos, int whence){
         }
         new_pos = pos + stat.st_size;
     } else{
+        spinlock_release(&lock);
         return -EINVAL;
     }
 
-    spinlock_acquire(&lock);
     file -> offset = new_pos;
     spinlock_release(&lock);
     return new_pos;

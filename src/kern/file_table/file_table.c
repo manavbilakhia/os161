@@ -145,7 +145,10 @@ int file_create(struct file_table *ftable, char *path, int flags, struct vnode *
     if(file -> vn != NULL) {
         VOP_INCREF(file -> vn);
     }
-
+    if (file ==NULL)
+    {
+        return -ENOSPC;
+    }
     int fd = ft_add_file(ftable, file);
     
     //lock_release(ftable -> lock);
