@@ -17,9 +17,11 @@ ssize_t
 sys_write(int fd, const void *buf, size_t nbytes){
     // Check if fd is valid
     int result;
-    if (fd < 0 || fd >= MAX_FILES || buf == NULL) {
+    if (fd < 0 || fd >= MAX_FILES ) {
         return -EBADF;
     }
+    if (buf == NULL)
+        return -EFAULT;
     char *buffer = (char* ) kmalloc (nbytes);
     if (buffer == NULL)
     {
@@ -27,15 +29,20 @@ sys_write(int fd, const void *buf, size_t nbytes){
     }
     result = copyin((const_userptr_t)buf, buffer, nbytes);
     if (result !=0)
-        return -EFAULT;
+        return -result;
     // handle console output
+    if (fd == STDIN_FILENO)
+    {
+        kfree(buffer);
+        return EBADF;
+    }
     if (fd == STDOUT_FILENO || fd == STDERR_FILENO) {
         size_t i;
 
         for (i = 0; i < nbytes; i++) {
             putch(buffer[i]);
         }
-
+        kfree (buffer);
         return i; // return the number of characters written
     }
     // Look up the file and check wiuth some basic error codes
@@ -43,7 +50,6 @@ sys_write(int fd, const void *buf, size_t nbytes){
     if (file == NULL || !(file->flags & O_WRONLY || file->flags & O_RDWR || file->flags & O_ACCMODE || file->flags & O_RDONLY)) {
         return -EBADF;
     }
-    KASSERT (file->lock != NULL);
     lock_acquire(file->lock);
 
     //  Write the bytes from the buffer to the file and update the current seek position of the file.
