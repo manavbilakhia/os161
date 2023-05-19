@@ -34,7 +34,7 @@ sys_write(int fd, const void *buf, size_t nbytes){
     if (fd == STDIN_FILENO)
     {
         kfree(buffer);
-        return EBADF;
+        return -EBADF;
     }
     if (fd == STDOUT_FILENO || fd == STDERR_FILENO) {
         size_t i;

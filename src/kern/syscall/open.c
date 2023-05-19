@@ -35,7 +35,7 @@ int sys_open(const char *filename, int flags){
     result = copyinstr((userptr_t)filename, kpath, PATH_MAX+1, &actual);
     if(result){
         kfree(kpath);
-        return result;
+        return -result;
     }
 
     // Ensure filename is null-terminated stackoverflow is the big beast
@@ -45,7 +45,7 @@ int sys_open(const char *filename, int flags){
     result = vfs_open(kpath, flags, 0, &vn);
     if (result) {
         kfree(kpath);
-        return result;
+        return -result;
     }
 
     // Create file and return file descriptor or an error code
