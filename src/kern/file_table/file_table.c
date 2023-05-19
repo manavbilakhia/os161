@@ -96,7 +96,7 @@ void ft_destroy(struct file_table *ftable){
         //if(!ft_look_up(ftable, i) == EBADF){
         //    file_destroy(ftable -> files[i]);
         //}
-        if(ft_look_up(ftable, i) != EBADF){
+        if(ftable -> files[i] != NULL){
             file_destroy(ftable -> files[i]);
         }
     }

@@ -21,20 +21,12 @@ sys__exit(int * exitcode){
      * Removes a process from the table of active processes.
      */
     lock_acquire(waitpidlock);
-    /*if (curthread == NULL || curproc == NULL){ 
-        *exitcode = -1;
-        lock_release(waitpidlock);
-    }*/
-    
-        //ft_destroy(curproc -> p_filetable); // consider putting this step in proc_destroy
-        cv_broadcast(waitpidcv, waitpidlock);
-        curproc->finished = true;
-        lock_release(waitpidlock);
-        remove_process(global_proc_table, curproc->process_id);
-        proc_destroy(curproc);
-        //*exitcode = 0;
-        (void)*exitcode;
-    
+    ft_destroy(curproc -> p_filetable); // consider putting this step in proc_destroy
+    cv_broadcast(waitpidcv, waitpidlock);
+    curproc->finished = true;
+    remove_process(global_proc_table, curproc->process_id);
+    *exitcode = 0;
     thread_exit();
-
+    proc_destroy(curproc);
+    lock_release(waitpidlock);
 }
