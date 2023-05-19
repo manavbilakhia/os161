@@ -28,19 +28,7 @@ sys_close(int fd){
 
     lock_acquire(file->lock);
 
-    int result;
-
-    result = ft_remove_file(curproc -> p_filetable, fd);
-    if(result == EBADF){
-        lock_release(file->lock);
-        return EBADF;
-    }
-
-    result = ft_remove_file(kproc -> p_filetable, fd);
-    if(result == EBADF){
-        lock_release(file->lock);
-        return EBADF;
-    }
+    vfs_close(file -> vn);
 
     lock_release(file->lock);
     return 0;
