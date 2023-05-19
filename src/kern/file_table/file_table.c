@@ -235,7 +235,7 @@ int ft_remove_file(struct file_table *ftable, int fd){
 
     ftable -> files[fd] = NULL;
 
-    //lock_destroy(target -> lock); // we cannot acquire a lock, destroy it and then try to release it..... so I am removing the locks
+    //lock_destroy(target -> lock); we cannot acquire a lock, destroy it and then try to release it..... so I am removing the locks
     kfree(target);
 
     //lock_release(ftable -> lock);

@@ -481,7 +481,10 @@ file        syscall/waitpid.c
 file        proc/proc_table.c
 file        proc/proc_table_test.c
 file        syscall/open.c
+file        syscall/close.c
 file        syscall/read.c
+file        syscall/lseek.c
+file        syscall/getcwd.c
 file        syscall/chdir.c
 file        syscall/dup2.c
 
