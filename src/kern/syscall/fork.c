@@ -21,8 +21,7 @@ int sys_fork(struct trapframe *tf_parent, int * return_value){
     struct proc *child = proc_create_runprogram(child_name);
     if (child == NULL) { return -ENOMEM; }
 
-    struct addrspace * address_space_child = NULL;
-    int result_addrcopy = as_copy(curproc->p_addrspace, &address_space_child);
+    int result_addrcopy = as_copy(curproc->p_addrspace, &child->p_addrspace);
 
     if (result_addrcopy != 0) {
         *return_value = -1;
@@ -38,10 +37,10 @@ int sys_fork(struct trapframe *tf_parent, int * return_value){
     struct file_table * child_file_table = child->p_filetable;
     memcpy(child_file_table, parent_file_table, sizeof(struct file_table));
 
-    int fork_result = thread_fork("creating new proc", child, child_proc_handler, tf_child, (unsigned long) address_space_child);
+    int fork_result = thread_fork("creating new proc", child, child_proc_handler, tf_child, (unsigned long) child -> p_addrspace);
     if (fork_result != 0) { 
         kfree(tf_child);
-        as_destroy(address_space_child);
+        as_destroy(child->p_addrspace);
         return fork_result; 
     } 
     

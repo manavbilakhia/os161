@@ -16,11 +16,13 @@
 
 
 void 
-sys__exit(int * exitcode){
+sys__exit(int * exitcode){ // THIS FUNCTION IS CURRENTLY BROKEN LIKE ALL HELL
     /*
      * Removes a process from the table of active processes.
      */
-    lock_acquire(waitpidlock);
+
+    /*lock_acquire(waitpidlock);
+
     ft_destroy(curproc -> p_filetable); // consider putting this step in proc_destroy
     cv_broadcast(waitpidcv, waitpidlock);
     curproc->finished = true;
@@ -28,5 +30,11 @@ sys__exit(int * exitcode){
     *exitcode = 0;
     thread_exit();
     proc_destroy(curproc);
-    lock_release(waitpidlock);
+
+    lock_release(waitpidlock); */
+    
+    KASSERT(curthread != NULL);
+    (void) exitcode;
+    thread_exit();
+
 }
