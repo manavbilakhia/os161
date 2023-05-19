@@ -83,4 +83,9 @@ sys_open(const char *filename, int flags);
 ssize_t
 sys_read(int fd, void *buf, size_t buflen);
 
+int	
+sys_chdir(const char *pathname);
+
+int
+sys_dup2(int oldfd, int newfd);
 #endif /* _SYSCALL_H_ */
