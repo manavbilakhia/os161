@@ -17,7 +17,7 @@
 int sys_open(const char *filename, int flags){
     //Check if filename is a valid pointer
     if(filename == NULL){
-        return EFAULT;
+        return -EFAULT;
     }
 
     struct file_table *ftable = curproc->p_filetable;
@@ -29,7 +29,7 @@ int sys_open(const char *filename, int flags){
     // Copy the filename into kernel space
     kpath = (char *) kmalloc(sizeof(char)*(PATH_MAX+1));
     if(kpath == NULL){
-        return ENOMEM;
+        return -ENOMEM;
     }
 
     result = copyinstr((userptr_t)filename, kpath, PATH_MAX+1, &actual);

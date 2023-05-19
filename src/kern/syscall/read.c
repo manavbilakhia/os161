@@ -15,8 +15,13 @@ sys_read(int fd, void *buf, size_t buflen) {
     struct iovec iov;
     struct uio ku;
 
-    if (fd < 0 || fd >= MAX_FILES || buf == NULL) {
+    if (fd < 0 || fd >= MAX_FILES) {
         return -EBADF;
+    }
+
+        if (buf == NULL)
+    {
+        return -EFAULT;
     }
 
     // handle console input
@@ -51,11 +56,6 @@ sys_read(int fd, void *buf, size_t buflen) {
     // Check for read permission
     if ((file->flags & O_ACCMODE) == O_WRONLY) {
         return -EBADF;
-    }
-
-    if (buf == NULL)
-    {
-        return -EFAULT;
     }
 
     // Lock file

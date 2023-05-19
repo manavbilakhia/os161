@@ -53,7 +53,7 @@ sys_write(int fd, const void *buf, size_t nbytes){
     result = VOP_WRITE(file->vn, &write_uio);
     if (result) {
         lock_release(file->lock);
-        return result;
+        return -result;
     }
 
     // Update the file offset
