@@ -117,6 +117,7 @@ int kmalloctest3(int, char **);
 int kmalloctest4(int, char **);
 int kmalloctest5(int, char **);
 int nettest(int, char **);
+int proc_table_test_run(int, char**);
 
 /* Routine for running a user-level program. */
 int runprogram(char *progname);

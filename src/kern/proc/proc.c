@@ -48,6 +48,10 @@
 #include <current.h>
 #include <addrspace.h>
 #include <vnode.h>
+#include <proc_table.h>
+#include <lib.h>
+#include <file_table.h>
+
 
 /*
  * The process for the kernel; this holds all the kernel-only threads.
@@ -57,7 +61,9 @@ struct proc *kproc;
 /*
  * Create a proc structure.
  */
-static
+struct lock * waitpidlock;
+struct cv * waitpidcv;
+
 struct proc *
 proc_create(const char *name)
 {
@@ -81,6 +87,15 @@ proc_create(const char *name)
 
 	/* VFS fields */
 	proc->p_cwd = NULL;
+
+	proc->process_id = get_available_pid(global_proc_table);
+	add_proc(proc -> process_id, global_proc_table, proc);
+	proc->parent_process_id = -1;
+
+	proc->finished = false; 
+
+	proc->exit_code = -1;
+	proc -> p_filetable = ft_create();
 
 	return proc;
 }
@@ -176,12 +191,16 @@ proc_destroy(struct proc *proc)
  * Create the process structure for the kernel.
  */
 void
-proc_bootstrap(void)
+proc_bootstrap(void) 
 {
+	proc_table_create();
+	KASSERT(global_proc_table != NULL);
 	kproc = proc_create("[kernel]");
 	if (kproc == NULL) {
 		panic("proc_create for kproc failed\n");
 	}
+	waitpidlock = lock_create("waitpidlock");
+	waitpidcv = cv_create("cvlock");
 }
 
 /*

@@ -364,6 +364,47 @@ mips_trap(struct trapframe *tf)
  *    - enter_new_process, for use by exec and equivalent.
  *    - enter_forked_process, in syscall.c, for use by fork.
  */
+
+struct trapframe * trapframe_copy(struct trapframe * src){
+	struct trapframe * dest = kmalloc(sizeof(struct trapframe));
+	if (dest == NULL) { return NULL; } // REPLACE WITH BETTER HANDLE
+	dest->tf_vaddr = src->tf_vaddr;	/* coprocessor 0 vaddr register */
+    dest->tf_status = src->tf_status;   /* coprocessor 0 status register */
+    dest->tf_cause = src->tf_cause;     /* coprocessor 0 cause register */
+    dest->tf_lo = src->tf_lo;
+    dest->tf_hi = src->tf_hi;
+    dest->tf_ra = src->tf_ra;           /* Saved register 31 */
+    dest->tf_at = src->tf_at;           /* Saved register 1 (AT) */
+    dest->tf_v0 = src->tf_v0;           /* Saved register 2 (v0) */
+    dest->tf_v1 = src->tf_v1;           /* etc. */
+    dest->tf_a0 = src->tf_a0;
+    dest->tf_a1 = src->tf_a1;
+    dest->tf_a2 = src->tf_a2;
+    dest->tf_a3 = src->tf_a3;
+    dest->tf_t0 = src->tf_t0;
+    dest->tf_t1 = src->tf_t1;
+    dest->tf_t2 = src->tf_t2;
+    dest->tf_t3 = src->tf_t3;
+    dest->tf_t4 = src->tf_t4;
+    dest->tf_t5 = src->tf_t5;
+    dest->tf_t6 = src->tf_t6;
+    dest->tf_t7 = src->tf_t7;
+    dest->tf_s0 = src->tf_s0;
+    dest->tf_s1 = src->tf_s1;
+    dest->tf_s2 = src->tf_s2;
+    dest->tf_s3 = src->tf_s3;
+    dest->tf_s4 = src->tf_s4;
+    dest->tf_s5 = src->tf_s5;
+    dest->tf_s6 = src->tf_s6;
+    dest->tf_s7 = src->tf_s7;
+    dest->tf_t8 = src->tf_t8;
+    dest->tf_t9 = src->tf_t9;
+    dest->tf_gp = src->tf_gp;
+    dest->tf_sp = src->tf_sp;
+    dest->tf_s8 = src->tf_s8;
+    dest->tf_epc = src->tf_epc;    
+	return dest;
+}
 void
 mips_usermode(struct trapframe *tf)
 {

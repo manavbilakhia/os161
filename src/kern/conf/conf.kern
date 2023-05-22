@@ -472,3 +472,20 @@ optfile   concurrent_list  concurrent_list/linked_list_test.c
 
 file        shared_buffer/shared_buffer.c
 file        shared_buffer/shared_buffer_test.c
+
+file        syscall/exit.c
+file        syscall/write.c
+file        syscall/fork.c
+file        syscall/waitpid.c
+
+file        proc/proc_table.c
+file        proc/proc_table_test.c
+file        syscall/open.c
+file        syscall/close.c
+file        syscall/read.c
+file        syscall/lseek.c
+file        syscall/getcwd.c
+file        syscall/chdir.c
+file        syscall/dup2.c
+
+file        file_table/file_table.c

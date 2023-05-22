@@ -50,6 +50,7 @@
 #include "opt-automationtest.h"
 #include "opt-concurrent_list.h"
 
+
 /*
  * In-kernel menu and command dispatcher.
  */
@@ -73,6 +74,9 @@
  * It copies the program name because runprogram destroys the copy
  * it gets by passing it to vfs_open().
  */
+
+//static struct semaphore *menu_sem;
+
 static
 void
 cmd_progthread(void *ptr, unsigned long nargs)
@@ -121,7 +125,6 @@ common_prog(int nargs, char **args)
 	struct proc *proc;
 	int result;
 	unsigned tc;
-
 	/* Create a process for the new program to run in. */
 	proc = proc_create_runprogram(args[0] /* name */);
 	if (proc == NULL) {
@@ -134,6 +137,7 @@ common_prog(int nargs, char **args)
 			proc /* new process */,
 			cmd_progthread /* thread function */,
 			args /* thread arg */, nargs /* thread arg */);
+	// call waitpid		
 	if (result) {
 		kprintf("thread_fork failed: %s\n", strerror(result));
 		proc_destroy(proc);
@@ -618,6 +622,7 @@ static const char *testmenu[] = {
 	"[fs5] FS long stress                ",
 	"[fs6] FS create stress              ",
 	"[hm1] HMAC unit test                ",
+	"[ptt] Proc table test				 ",
 	NULL
 };
 
@@ -763,6 +768,7 @@ static struct {
 	{ "llt", linked_list_test_run },
 #endif
 	{ "sbt", shared_buffer_test_run },
+	{"ptt", proc_table_test_run},
 	/* semaphore unit tests */
 	{ "semu1",	semu1 },
 	{ "semu2",	semu2 },

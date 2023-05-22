@@ -27,74 +27,46 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _SYSCALL_H_
-#define _SYSCALL_H_
+#ifndef _FILE_TABLE_H_
+#define _FILE_TABLE_H_
 
-
-#include <cdefs.h> /* for __DEAD */
 #include <types.h>
-struct trapframe; /* from <machine/trapframe.h> */
+#include <vfs.h>
+#include <synch.h>
+#include <vnode.h>
 
-/*
- * The system call dispatcher.
- */
+#define MAX_FILES 20
+#define MIN_FD 3
 
-void syscall(struct trapframe *tf);
+struct lock;
+struct vnode;
 
-/*
- * Support functions.
- */
+struct file {
+    struct vnode *vn;
+    unsigned int offset;
+    struct lock *lock;
+    int flags;
+    char *path;
+};
 
-/* Helper for fork(). You write this. */
-void enter_forked_process(struct trapframe *tf);
+struct file_table {
+    struct file *files[MAX_FILES];
+    int number_files;
+    struct lock *lock;
+};
 
-/* Enter user mode. Does not return. */
-__DEAD void enter_new_process(int argc, userptr_t argv, userptr_t env,
-		       vaddr_t stackptr, vaddr_t entrypoint);
+struct file_table *ft_create(void);
+void ft_destroy(struct file_table *ft);
+bool ft_full(struct file_table *ft);
+int file_create(struct file_table *ft, char *path, int flags, struct vnode *vn);
+void file_destroy(struct file *f);
+int ft_add_file(struct file_table *ft, struct file *file);
+int copy_file(struct file_table *ft, int fd);
+int ft_remove_file(struct file_table *ft, int fd);
+int ft_look_up(struct file_table *ft, int fd);
+int file_seek(struct file_table *ft, int fd);
+//struct file *ft_get_file(struct file_table *ft, int fd);
 
 
-/*
- * Prototypes for IN-KERNEL entry points for system call implementations.
- */
 
-int sys_reboot(int code);
-int sys___time(userptr_t user_seconds, userptr_t user_nanoseconds);
-
-
-/*
- * Causes the current process to exit.
- */
-
-void sys__exit(int * exitcode);
-
-int sys_fork(struct trapframe *tf_parent, int * return_value);
-pid_t sys_waitpid(pid_t child_pid, userptr_t status, int options);
-pid_t sys_getpid(void);
-
-/*
- * Write system call 
- */
-ssize_t
-sys_write(int fd, const void *buf, size_t nbytes);
-
-int 
-sys_open(const char *filename, int flags);
-
-int
-sys_close(int fd);
-
-ssize_t
-sys_read(int fd, void *buf, size_t buflen);
-
-off_t
-sys_lseek(int fd, off_t pos, int whence);
-
-int
-sys___getcwd(char *buf, size_t buflen);
-
-int	
-sys_chdir(const char *pathname);
-
-int
-sys_dup2(int oldfd, int newfd);
-#endif /* _SYSCALL_H_ */
+#endif /* _FILE_TABLE_H_ */
