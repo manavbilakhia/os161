@@ -1,0 +1,60 @@
+﻿Caleb L’Italien
+John Collins
+Manav Bilakhia
+File Table (JC and MB):
+* The file table receives a score of 4, as it has been implemented with minor flaws. Everything needed for the subsystem is implemented but some parts might need to be changed in the copy file function, so that it can be used for dup2. In order to complete this implementation, we first started with a header file with functions we knew needed to be there (create and delete). After this, we then went through the syscalls and asked ourselves what the file table would need to do for the syscalls and added functions based on these necessities. 
+execv() (JC):
+* The execv() syscall receives a score of 3. It has been implemented but it still does not have the copyout function for the stack. The approach to completing this part will be first creating a memory diagram for the stack and understanding how the pointers are working. Then, a for loop will be used to copy all of the args.
+getcwd() (JC):
+* This syscall receives a score of 5, because it has been fully implemented.
+
+
+close() (JC):
+* This syscall receives a score of 4, as it has been implemented with minor issues in the code.
+lseek() (JC):
+* This syscall receives a score of 4, as it has been implemented with minor issues in the code.
+Process Table (CL):
+* The process table receives a score of 5, because it has been fully implemented.
+getPid() (CL):
+* This syscall receives a score of 5, because it has been fully implemented.
+fork() (CL):
+* This syscall receives a score of 3, because it has been implemented with major flaws. I believe the main flaws relate to not deallocating memory after returning bad calls. 
+PCB (CL):
+* The process control block receives a score of 5, because it has been fully implemented. 
+_exit() (CL)
+* This syscall receives a score of 3, because it has been implemented with major flaws. I believe I need to revisit the logic for _exit(), because I have run into strange errors. 
+waitpid() (CL)
+* This syscall receives a score of 3, because it has been implemented, but I am unsure of where issues lie. I am currently unsure of where flaws lie because I have not yet fully implemented _exit, so I cannot accurately test this function. 
+open() (MB)
+* This is fully implemented to my knowledge. Opentest works. Score =  5
+read() (MB)
+* This is implemented with minor flaws. Reading from shell is not supported at this point. Reading from console and file is supported. Passed the readwritetest, consoetest and palin. Score = 4
+write() (MB)
+* This is fully implemented to my knowledge but I might have to edit it based on changes made to read. Score 4.5
+chdir() (MB)
+* This is fully implemented to my knowledge. I can only test it after I finish shell reading. Until then I am confident of my code.  Score 4
+dup2(MB)
+* This has major flaws. I took a reverse approach. I have only implemented the error handling, not the actual functionality. Score 3
+Scheduling(all)
+* The scheduling has not yet been implemented. Our approach for doing this will be to first understand the round-robin system and determine if our initial decision for a first come first serve scheduling queue is optimal. Then we will create a scheduling structure, if needed, for this project.
+
+
+Team Member Answers:
+        MB- I mainly learned about the file table. I wish I knew that this subsystem would have to be edited every day that I add more functionality. There is no end to this madness. I still don't know about scheduling. I hope to learn more about its implementation as the project progresses.
+I learned how to grep!!!!! Going about the codebase was one of the biggest challenges that I faced. Also I realized that I missed the fine print on a lot of things that were later brought to my attention.
+        CL - The subsystem I learned a lot about through this project was the process table and process control block. I learned about how the process control block can be used to encapsulate all data about a process, keeping information from being stored in the process table, making it unnecessarily complicated. I wish I understood more about the whalemating file. I encountered difficulties navigating through the codebase, as sometimes, VS Code would be convinced a file didn’t exist, despite my adamant objections. 
+        JC - The subsystem that I learned a lot about while doing this project was the file table. I learned more about how the file system needs to operate and how the files will be stored and accessed. I wish I knew more about the virtual memory system of OS/161, because I think it would be cool to implement and change the virtual memory system. The difficulties that I encountered during this were finding structures already implemented in OS/161. I also had difficulty with debugging based on the tests that we can run on OS/161, because the issues were not always clear from the messages given.
+
+
+
+
+Group Teamwork:
+        As a group, we functioned like a well-oiled machine. We would all meet together everyday in the PASTA lab and discuss what we need to work on for the day. We also discussed issues that we were having with other code and structures with one another so we could get real-time fixes to the code. With the git branching, we were able to avoid major merge conflicts by having feature branches in which the code being worked on by one member was not being affected by another member. It was easier to accomplish the structures than we thought it would be and the syscalls turned out to be much harder than we had anticipated with all the error checking and fundamentals we needed to understand. Our design changed in our implementation of the file table, which was being updated through the project based on group member needs. Also, we changed the process table so that the child processes can continue even if the parent process is terminated.
+        We feel that much of our process for completing this project was efficient and does not need changes. However, we may look to decrease the total amount of time everyday that we work on so that one or more group members does not burn out from working constantly.
+
+
+Timeline: 
+1. By Tuesday, May 30: Complete implemented but flawed syscalls.
+2. By Thursday, Jun 1: Finish the scheduler (not assigned to a member yet)
+3. By Friday, Jun 2: Have tested all of our syscalls and scheduling and make sure they work.
+4. Celebrate (open to all members of the class. Please RSVP: location PASTA June 2nd, 10:01 pm)
