@@ -16,25 +16,26 @@
 
 
 void 
-sys__exit(int * exitcode){ // THIS FUNCTION IS CURRENTLY BROKEN LIKE ALL HELL
+sys__exit(int * exitcode){ 
     /*
      * Removes a process from the table of active processes.
      */
+    struct proc * curproc_stack = curproc;
+    if (curproc == NULL) { panic("missing process for exit call"); }
+    if (curproc_stack == NULL) {panic("failed to make local copy");}
+    curproc_stack -> finished = true;
 
-    /*lock_acquire(waitpidlock);
+    remove_process(global_proc_table, curproc -> process_id);
 
-    ft_destroy(curproc -> p_filetable); // consider putting this step in proc_destroy
-    cv_broadcast(waitpidcv, waitpidlock);
-    curproc->finished = true;
-    remove_process(global_proc_table, curproc->process_id);
-    *exitcode = 0;
-    thread_exit();
-    proc_destroy(curproc);
-
-    lock_release(waitpidlock); */
+    KASSERT(waitpidlock != NULL);
     
-    KASSERT(curthread != NULL);
-    (void) exitcode;
+    lock_acquire(waitpidlock);
+    proc_remthread(curthread);
+    cv_broadcast(waitpidcv, waitpidlock);
+
+    KASSERT(curproc_stack != NULL);
+    proc_destroy(curproc_stack);
     thread_exit();
 
+    (void)exitcode;
 }

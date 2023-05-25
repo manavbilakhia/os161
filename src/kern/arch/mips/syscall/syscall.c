@@ -131,7 +131,15 @@ syscall(struct trapframe *tf)
 		break;
 
 		case SYS_waitpid:
-		err = sys_waitpid((pid_t) tf->tf_a0, (userptr_t) tf->tf_a1, (int) tf->tf_a2);
+		retval = sys_waitpid((pid_t) tf->tf_a0, (userptr_t) tf->tf_a1, (int) tf->tf_a2);
+		if (retval <0)
+		{
+			err = -retval;
+		}
+		else
+		{
+			err = 0;
+		}
 		break;
 
 		case SYS_open:
