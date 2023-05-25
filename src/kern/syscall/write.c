@@ -55,7 +55,7 @@ sys_write(int fd, const void *buf, size_t nbytes){
     //  Write the bytes from the buffer to the file and update the current seek position of the file.
     struct uio write_uio;
     struct iovec write_iov;
-    uio_kinit(&write_iov, &write_uio, (void *)buf, nbytes, file->offset, UIO_WRITE);
+    uio_kinit(&write_iov, &write_uio, buffer, nbytes, file->offset, UIO_WRITE);
     result = VOP_WRITE(file->vn, &write_uio);
     if (result) {
         lock_release(file->lock);
