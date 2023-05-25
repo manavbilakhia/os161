@@ -217,6 +217,7 @@ struct file_table *ft_clone(struct file_table *ftable){
 
     for(int i = 0; i < ftable -> number_files + 1; i++){
         ft_add_file(copy, ftable -> files[i]);
+        VOP_INCREF(copy -> files [i] -> vn);
     }
 
     lock_release(ftable -> lock);

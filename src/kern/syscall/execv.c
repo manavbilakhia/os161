@@ -44,11 +44,17 @@
 
 struct lock *lock;
 
+
+static void free_arg(char ** argv, int argc){
+	for(int j = 0; j < argc; j++){
+		kfree(argv[j]);
+	}
+	kfree(argv);
+}
+
 int
 sys_execv(const char *program, char **args)
 {
-	lock = lock_create("execv_lock");
-	lock_acquire(lock);
 	
 	struct addrspace *as;
 	struct vnode *v;
@@ -58,29 +64,30 @@ sys_execv(const char *program, char **args)
     char **argv;
     char *copy_program;
 
-    int argc = 0;
+    int argc;
 
     /* Copying in the complex args */
-    while(args[argc] != NULL){
-        argc++;
-    }
+    for(argc = 0; args[argc]; argc++);
 
 	if(argc > __ARG_MAX){
-		lock_release(lock);
 		return -E2BIG;
 	}
 
     argv = (char **) kmalloc(sizeof(char **) * argc);
     if(argv == NULL){
-		lock_release(lock);
         return -ENOMEM;
     }
 
     for(int i = 0; i < argc; i++){
-        result = copyin((const_userptr_t) args[i], argv[i], 1); //place holder need to know last parameter for this
+		argv[i] = kmalloc(sizeof(char *));
+		if(argv[i] == NULL){
+			free_arg(argv, argc);
+			return -ENOMEM;
+		}
+
+        result = copyin((const_userptr_t) args[i], argv[i], (size_t) strlen(args[i]));
         if(result){
-            kfree(argv);
-			lock_release(lock);
+			free_arg(argv, argc);
 			return -result;
         }
     }
@@ -88,25 +95,22 @@ sys_execv(const char *program, char **args)
 	/* Copying in the program string */
 	copy_program = (char *) kmalloc(sizeof(strlen(program)));
 	if(copy_program == NULL){
-		kfree(argv);
-		lock_release(lock);
+		free_arg(argv, argc);
 		return -ENOMEM;
 	}
 
 	result = copyin((const_userptr_t) program, copy_program, strlen(program));
 	if(result){
-		kfree(argv);
+		free_arg(argv, argc);
 		kfree(copy_program);
-		lock_release(lock);
 		return -result;
 	}
 
 	/* Open the file. */
 	result = vfs_open((char *) program, O_RDONLY, 0, &v);
 	if (result) {
-		kfree(argv);
+		free_arg(argv, argc);
 		kfree(copy_program);
-		lock_release(lock);
 		return -result;
 	}
 
@@ -117,9 +121,8 @@ sys_execv(const char *program, char **args)
 	as = as_create();
 	if (as == NULL) {
 		vfs_close(v);
-		kfree(argv);
+		free_arg(argv, argc);
 		kfree(copy_program);
-		lock_release(lock);
 		return -ENOMEM;
 	}
 
@@ -132,9 +135,8 @@ sys_execv(const char *program, char **args)
 	if (result) {
 		/* p_addrspace will go away when curproc is destroyed */
 		vfs_close(v);
-		kfree(argv);
+		free_arg(argv, argc);
 		kfree(copy_program);
-		lock_release(lock);
 		return -result;
 	}
 
@@ -145,9 +147,8 @@ sys_execv(const char *program, char **args)
 	result = as_define_stack(as, &stackptr);
 	if (result) {
 		/* p_addrspace will go away when curproc is destroyed */
-		kfree(argv);
+		free_arg(argv, argc);
 		kfree(copy_program);
-		lock_release(lock);
 		return -result;
 	}
 
@@ -160,7 +161,6 @@ sys_execv(const char *program, char **args)
 
 	/* enter_new_process does not return. */
 	panic("enter_new_process returned\n");
-	lock_release(lock);
 	return -EINVAL;
 }
 
