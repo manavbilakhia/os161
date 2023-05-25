@@ -477,6 +477,7 @@ file        syscall/exit.c
 file        syscall/write.c
 file        syscall/fork.c
 file        syscall/waitpid.c
+file        syscall/execv.c
 
 file        proc/proc_table.c
 file        proc/proc_table_test.c
