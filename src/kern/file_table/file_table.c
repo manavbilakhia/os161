@@ -116,18 +116,18 @@ int file_create(struct file_table *ftable, char *path, int flags, struct vnode *
         return -ENFILE;
     }
     KASSERT(!ft_full(ftable));
-    lock_acquire(ftable -> lock);
+    //lock_acquire(ftable -> lock);
 
     struct file *file = kmalloc(sizeof(struct file));
     if (file == NULL){
-        lock_release(ftable->lock);
+    //    lock_release(ftable->lock);
         return -ENOMEM;
     }
 
     file -> path = kstrdup(path);
     if(file ->path == NULL){
         kfree(file);
-        lock_release(ftable->lock);
+    //    lock_release(ftable->lock);
         return -ENOMEM;
     }
 
@@ -138,7 +138,7 @@ int file_create(struct file_table *ftable, char *path, int flags, struct vnode *
     if(file -> lock == NULL){
         kfree(file -> path);
         kfree(file);
-        lock_release(ftable->lock);
+    //    lock_release(ftable->lock);
         return -ENOMEM;
     }
 
@@ -147,11 +147,12 @@ int file_create(struct file_table *ftable, char *path, int flags, struct vnode *
     }
     if (file ==NULL)
     {
+    //    lock_release(ftable->lock);
         return -ENOSPC;
     }
     int fd = ft_add_file(ftable, file);
     
-    lock_release(ftable -> lock);
+    //lock_release(ftable -> lock);
     return fd;
 }
 
