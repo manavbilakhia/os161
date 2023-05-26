@@ -174,7 +174,7 @@ void file_destroy(struct file *file){
 int ft_add_file(struct file_table *ftable, struct file *file){
 
     if(ft_full(ftable)){
-        return ENFILE;
+        return -ENFILE;
     }
     KASSERT(ftable != NULL);
     lock_acquire(ftable -> lock);
@@ -241,13 +241,12 @@ int ft_remove_file(struct file_table *ftable, int fd){
     }
 
     struct file *file = ftable -> files[fd];
+    VOP_DECREF(target->vn);
     if(file -> vn -> vn_refcount == 1){
         file_destroy(file);
         lock_release(ftable -> lock);
         return fd;
     }
-
-    VOP_DECREF(target -> vn);
 
     ftable -> files[fd] = NULL;
 

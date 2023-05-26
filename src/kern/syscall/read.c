@@ -35,7 +35,7 @@ sys_read(int fd, void *buf, size_t buflen) {
     }
     if (fd == STDIN_FILENO) {
         size_t i;
-        int ch;
+        char ch;
 
         if (buffer == NULL)
         {
@@ -43,7 +43,7 @@ sys_read(int fd, void *buf, size_t buflen) {
         }
 
         for (i = 0; i < buflen; i++) {
-            ch = getch();
+            ch = (char ) getch();
 
             if (ch < 0) {
                 kfree(buffer);
@@ -57,14 +57,15 @@ sys_read(int fd, void *buf, size_t buflen) {
                 break; // end of line
             }
         }
-
-        int result = copyout((const void*)buffer, (userptr_t)buf, (size_t)(i+1));
+        putch ('\n');
+        size_t got;
+        int result = copyoutstr((const void*)buffer, (userptr_t)buf, (size_t)(i+1), &got);
         kfree(buffer);
-        if (result) {
+        if (result == EFAULT ) {
             return -EFAULT;
         }
        
-        return i; // return the number of characters read
+        return result; // return the number of characters read
     }
 
     // Get file from file table
