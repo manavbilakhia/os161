@@ -20,7 +20,13 @@ void proc_table_create(void){
     spinlock_init(&((global_proc_table) -> pt_lock));
     (global_proc_table) -> active_procs = 0;
 
-    for (int j = 2; j < MAX_ACTIVE_PROCS; j++) { (global_proc_table) -> proc_table_map[j] = NULL; } // is this line necessary?
+    for (int j = 2; j < MAX_ACTIVE_PROCS; j++) { (global_proc_table) -> proc_table_map[j] = NULL; }
+
+    for (int i = 0; i < 2; i++){ for (int k = 0; k < MAX_ACTIVE_PROCS; k++){  
+            global_proc_table -> exit_code_map[i][k].pid = -1;
+            global_proc_table -> exit_code_map[i][k].exitcode = NULL;
+        }
+    }
 }
 
 void proc_table_destroy(struct proc_table * pt){
@@ -37,6 +43,10 @@ void proc_table_destroy(struct proc_table * pt){
     spinlock_cleanup(&pt->pt_lock);
     kfree(pt);
 }
+
+int get_exit_code(pid_t pid, struct proc_table *pt){ return pt -> exit_code_map[1][pid].exitcode; }
+
+void set_exit_code(pid_t pid, struct proc_table *pt, int new_exit_code){pt->exit_code_map[1][pid].exitcode = new_exit_code;}
 
 int add_proc(pid_t pid, struct proc_table *pt, struct proc * p){
     /*

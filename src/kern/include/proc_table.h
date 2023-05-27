@@ -17,6 +17,11 @@ struct proc_table{
     volatile int active_procs; // number of active processes
 
     struct proc* proc_table_map[MAX_ACTIVE_PROCS];
+
+    struct{
+        pid_t pid;
+        int exitcode;
+    } exit_code_map[2][MAX_ACTIVE_PROCS];
 };
 
 void proc_table_create(void);

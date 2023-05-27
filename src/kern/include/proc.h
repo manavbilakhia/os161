@@ -73,7 +73,6 @@ struct proc {
 	pid_t process_id;
 	pid_t parent_process_id;
 	bool finished;
-	int exit_code;
 	struct file_table *p_filetable;
 
 	/* VM */

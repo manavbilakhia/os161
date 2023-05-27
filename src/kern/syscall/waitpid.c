@@ -29,7 +29,7 @@ pid_t sys_waitpid(pid_t child_pid, userptr_t status, int options){
 
     lock_acquire(waitpidlock);
     if (get_proc(child_pid, global_proc_table) -> finished == true){ 
-        copyout((const void *)&get_proc(child_pid, global_proc_table)-> exit_code, status, sizeof(int));
+        //copyout((const void *)&get_proc(child_pid, global_proc_table)-> exit_code, status, sizeof(int));
         lock_release(waitpidlock);
         proc_destroy(get_proc(child_pid, global_proc_table));
         return child_pid;
@@ -38,7 +38,7 @@ pid_t sys_waitpid(pid_t child_pid, userptr_t status, int options){
         while (get_proc(child_pid, global_proc_table) -> finished != true){
             cv_wait(waitpidcv, waitpidlock);
         }
-        copyout((const void *)&get_proc(child_pid, global_proc_table)-> exit_code, status, sizeof(int));
+        //copyout((const void *)&get_proc(child_pid, global_proc_table)-> exit_code, status, sizeof(int));
         lock_release(waitpidlock);
         proc_destroy(get_proc(child_pid, global_proc_table));
         return child_pid; 
