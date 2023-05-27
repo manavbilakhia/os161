@@ -57,7 +57,7 @@ sys_read(int fd, void *buf, size_t buflen) {
                 break; // end of line
             }
         }
-        putch ('\n');
+        //putch ('\n');
         size_t got;
         int result = copyoutstr((const void*)buffer, (userptr_t)buf, (size_t)(i+1), &got);
         kfree(buffer);
