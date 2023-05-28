@@ -19,11 +19,16 @@ int sys_fork(struct trapframe *tf_parent, int * return_value){
      */
     const char *child_name = "child_proc";
     struct proc *child = proc_create_runprogram(child_name);
-    if (child == NULL) { return -ENOMEM; }
+    if (child == NULL) { 
+        kfree(child);
+        return -ENOMEM; 
+    }
 
     int result_addrcopy = as_copy(curproc->p_addrspace, &child->p_addrspace);
 
     if (result_addrcopy != 0) {
+        as_destroy(child->p_addrspace);
+        kfree(child);
         *return_value = -1;
         return result_addrcopy; 
     }
@@ -31,7 +36,12 @@ int sys_fork(struct trapframe *tf_parent, int * return_value){
     child -> parent_process_id = curproc -> process_id;
     struct trapframe * tf_child = trapframe_copy(tf_parent);
 
-    if (tf_child == NULL) { return -ENOMEM; }
+    if (tf_child == NULL) {
+        kfree(tf_child);
+        as_destroy(child->p_addrspace);
+        kfree(child); 
+        return -ENOMEM; 
+    }
 
     struct file_table * parent_file_table = curproc->p_filetable;
     struct file_table * child_file_table = child->p_filetable;
@@ -41,6 +51,7 @@ int sys_fork(struct trapframe *tf_parent, int * return_value){
     if (fork_result != 0) { 
         kfree(tf_child);
         as_destroy(child->p_addrspace);
+        kfree(child);
         return fork_result; 
     } 
     

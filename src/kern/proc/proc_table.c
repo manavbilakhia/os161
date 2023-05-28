@@ -24,7 +24,7 @@ void proc_table_create(void){
 
     for (int i = 0; i < 2; i++){ for (int k = 0; k < MAX_ACTIVE_PROCS; k++){  
             global_proc_table -> exit_code_map[i][k].pid = -1;
-            global_proc_table -> exit_code_map[i][k].exitcode = NULL;
+            //global_proc_table -> exit_code_map[i][k].exitcode = NULL; // do i need this?
         }
     }
 }

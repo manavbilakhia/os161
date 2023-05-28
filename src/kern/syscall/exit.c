@@ -13,10 +13,11 @@
 #include <proc_table.h>
 #include <spl.h>
 #include <file_table.h>
+#include <kern/wait.h>
 
 
 void 
-sys__exit(int * exitcode){ 
+sys__exit(int exitcode){ 
     /*
      * Removes a process from the table of active processes.
      */
@@ -24,6 +25,8 @@ sys__exit(int * exitcode){
     if (curproc == NULL) { panic("missing process for exit call"); }
     if (curproc_stack == NULL) {panic("failed to make local copy");}
     curproc_stack -> finished = true;
+
+    set_exit_code(curproc_stack->process_id, global_proc_table, _MKWAIT_EXIT(exitcode));
 
     remove_process(global_proc_table, curproc -> process_id);
 
@@ -35,7 +38,6 @@ sys__exit(int * exitcode){
 
     KASSERT(curproc_stack != NULL);
     proc_destroy(curproc_stack);
+    lock_release(waitpidlock);
     thread_exit();
-
-    (void)exitcode;
 }
