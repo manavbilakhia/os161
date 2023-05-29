@@ -28,10 +28,7 @@ sys_close(int fd){
     }
     /* Issue ith STDIN in fle table */
 
-    lock_acquire(file->lock);
+    ft_remove_file(curproc -> p_filetable, fd);
     
-    vfs_close(file -> vn);
-    
-    lock_release(file->lock);
     return 0;
 }

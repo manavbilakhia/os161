@@ -155,13 +155,14 @@ sys_execv(const char *program, char **args)
 		return -result;
 	}
 
-	char **to_stack = (char *) kmalloc(sizeof(char *) * argc);
+	char **to_stack = (char **) kmalloc(sizeof(char **) * argc);
 	if(to_stack == NULL){
 		as_destroy(as);
 		free_arg(argv, argc);
 		kfree(copy_program);
 		return -ENOMEM;
 	}
+
 	//Need to add the stack copying here. Also need copy out at some point
 
 	/* Warp to user mode. */

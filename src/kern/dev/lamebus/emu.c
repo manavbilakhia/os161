@@ -43,6 +43,7 @@
 #include <types.h>
 #include <kern/errno.h>
 #include <kern/fcntl.h>
+#include <kern/limits.h>
 #include <stat.h>
 #include <lib.h>
 #include <array.h>
@@ -830,6 +831,7 @@ emufs_namefile(struct vnode *v, struct uio *uio)
 {
 	struct emufs_vnode *ev = v->vn_data;
 	struct emufs_fs *ef = v->vn_fs->fs_data;
+        int result = 0;
 
 	if (ev == ef->ef_root) {
 		/*
@@ -837,10 +839,74 @@ emufs_namefile(struct vnode *v, struct uio *uio)
 		 */
 		return 0;
 	}
+        
+        char full_path[__PATH_MAX];
+        full_path[0] = 0;
+        struct vnode * cur_vn = v;
+        struct vnode * parent_vn = NULL;
+        struct vnode * entry_vn = NULL;
+        do {
+          char path[4] = "../";
+          char buf[4];
+          parent_vn = NULL;
+          result = emufs_lookparent(cur_vn, path, &parent_vn, buf, 4);
+          if (result) goto out;
+          struct iovec iov;
+          struct uio ku;
+          
+          char entry_name[__PATH_MAX];
+          int prev_offset = -1;
+          int offset = 0;
+          while (prev_offset != offset){
+            prev_offset = offset;
+            uio_kinit(&iov, &ku, entry_name, __PATH_MAX, offset, UIO_READ);
+            result = emufs_getdirentry(parent_vn, &ku);
+            if (result) goto out;
+            offset = ku.uio_offset;
+            entry_name[__PATH_MAX - ku.uio_resid] = 0;
+            if (offset != prev_offset) {
+              entry_vn = NULL;
+              result = emufs_lookup(parent_vn, entry_name, &entry_vn);
+              if (result) goto out;
+              mode_t mode = 0;
+              result = VOP_GETTYPE(entry_vn, &mode);
+              if (result) goto out;
+              if (mode == S_IFDIR && entry_vn == cur_vn) {
+                //kprintf("direntry=%s, offset=%lu, resid=%lu, mode=%x\n", entry,
+                //        (unsigned long int) ku.uio_offset, (unsigned long int) ku.uio_resid, mode);
+                if (strlen(full_path) + strlen(entry_name) + 1 + 1 > __PATH_MAX)
+                  return ENAMETOOLONG;
+                char tmp_buf[__PATH_MAX];
+                strcpy(tmp_buf, entry_name);
+                tmp_buf[strlen(entry_name)] = '/';
+                strcpy(tmp_buf + strlen(entry_name) + 1, full_path);
+                strcpy(full_path, tmp_buf);
+                //kprintf("full_path=%s\n", full_path);
+                break;
+              } else {
+                VOP_DECREF(entry_vn);
+              }
+            }
+            ku.uio_resid = 0;
+          }
+          if (cur_vn != v)
+            VOP_DECREF(cur_vn);
+          cur_vn = parent_vn;
+          parent_vn = NULL;
+        } while (cur_vn->vn_data != ef -> ef_root);
 
-	(void)uio;
+        result = uiomove(full_path, strlen(full_path)+1, uio);
 
-	return ENOSYS;
+ out:
+        if (cur_vn != NULL && cur_vn != v)
+          VOP_DECREF(cur_vn);
+        if (parent_vn != NULL && parent_vn != v)
+          VOP_DECREF(parent_vn);
+        if (entry_vn != NULL)
+          VOP_DECREF(entry_vn);
+        return result;
+        
+
 }
 
 /*
