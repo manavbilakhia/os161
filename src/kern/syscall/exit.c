@@ -34,7 +34,7 @@ sys__exit(int exitcode){
     
     lock_acquire(waitpidlock);
     proc_remthread(curthread);
-    cv_broadcast(waitpidcv, waitpidlock);
+    cv_signal(waitpidcv, waitpidlock);
 
     KASSERT(curproc_stack != NULL);
     proc_destroy(curproc_stack);

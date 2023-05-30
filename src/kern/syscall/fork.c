@@ -18,7 +18,7 @@ int sys_fork(struct trapframe *tf_parent, int * return_value){
      * Documentation to be written.
      */
     const char *child_name = "child_proc";
-    struct proc *child = proc_create_runprogram(child_name);
+    struct proc *child = proc_create(child_name);
     if (child == NULL) { 
         kfree(child);
         return -ENOMEM; 
@@ -43,13 +43,12 @@ int sys_fork(struct trapframe *tf_parent, int * return_value){
         return -ENOMEM; 
     }
 
-    struct file_table * parent_file_table = curproc->p_filetable;
-    struct file_table * child_file_table = child->p_filetable;
-    memcpy(child_file_table, parent_file_table, sizeof(struct file_table));
+    struct file_table * child_file_table = ft_clone(curproc->p_filetable);
 
     int fork_result = thread_fork("creating new proc", child, child_proc_handler, tf_child, (unsigned long) child -> p_addrspace);
     if (fork_result != 0) { 
         kfree(tf_child);
+        ft_destroy(child_file_table);
         as_destroy(child->p_addrspace);
         kfree(child);
         return fork_result; 
@@ -68,7 +67,6 @@ static void child_proc_handler(void * data1, unsigned long data2){
     unsigned long address_space_child = data2;
     
     curproc->p_addrspace = (struct addrspace * ) address_space_child;
-    as_activate();
     KASSERT(curproc->p_addrspace != NULL);
 
     tf_child -> tf_a3 = 0;

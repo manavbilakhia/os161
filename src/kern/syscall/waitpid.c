@@ -21,10 +21,10 @@ pid_t sys_waitpid(pid_t child_pid, userptr_t status, int options){
     /*
      * Documentation to be written.
      */
-    if (!valid_pid(child_pid)){ return EINVAL; }
-    if (options != 0){ return EINVAL; }
-    if (get_proc(child_pid, global_proc_table) == NULL){ return ESRCH; }
-    if (get_proc(child_pid, global_proc_table)->parent_process_id == curproc->parent_process_id){ return ECHILD; }
+    if (!valid_pid(child_pid)){ return -EINVAL; }
+    if (options != 0){ return -EINVAL; }
+    if (get_proc(child_pid, global_proc_table) == NULL){ return -ESRCH; }
+    if (get_proc(child_pid, global_proc_table)->parent_process_id == curproc->parent_process_id){ return -ECHILD; }
 
     lock_acquire(waitpidlock);
     struct proc * child_proc = get_proc(child_pid, global_proc_table);

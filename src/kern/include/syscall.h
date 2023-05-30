@@ -97,4 +97,10 @@ sys_chdir(const char *pathname);
 
 int
 sys_dup2(int oldfd, int newfd);
+/*
+ * Execv system call 
+ */
+int
+sys_execv(const char *program, char **args);
+
 #endif /* _SYSCALL_H_ */

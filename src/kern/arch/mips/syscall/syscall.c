@@ -123,7 +123,9 @@ syscall(struct trapframe *tf)
         break;
 
 		case SYS_fork:
-		err = sys_fork(tf, (int *) tf->tf_a0); 
+		retval = sys_fork(tf, (int *) tf->tf_a0); 
+		if (retval < 0){ err = -retval; }
+		else{ err = 0; }
 		break;
 
 		case SYS_getpid:
@@ -136,10 +138,7 @@ syscall(struct trapframe *tf)
 		{
 			err = -retval;
 		}
-		else
-		{
-			err = 0;
-		}
+		else{ err = 0; }
 		break;
 
 		case SYS_open:
@@ -197,6 +196,10 @@ syscall(struct trapframe *tf)
         else 
             err = 0; 
         break;
+
+		case SYS_execv:
+		err = sys_execv((const char *) tf->tf_a0, (char **) tf->tf_a1);
+		break;
 
 	    default:
 		kprintf("Unknown syscall %d\n", callno);
