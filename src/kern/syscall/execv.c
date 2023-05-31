@@ -80,7 +80,6 @@ sys_execv(userptr_t program, userptr_t args)
 
 	kprintf("Check 2\n");
 
-	kprintf("PROGRAM NAME ORIGINAL: %s\n", (char *) program);
 	result = copyinstr(program, copy_program, PATH_MAX, &size);
 	if(result){
 		kfree(copy_program);
@@ -131,7 +130,18 @@ sys_execv(userptr_t program, userptr_t args)
 			return -ENOMEM;
 		}
 
-		result = copyinstr(args + i * sizeof(char *), kargs[i], PATH_MAX, &size);
+		char * tmp;
+		result = copyin(args + i * sizeof(char*), &tmp, sizeof(char*));
+		if(result){
+			for(int j = 0; j < i; j++){
+				kfree(kargs[j]);
+			}
+			kfree(copy_program);
+			kfree(kargs);
+			return -result;
+		}
+
+		result = copyinstr((const_userptr_t) tmp, kargs[i], PATH_MAX, &size);
 		if(result){
 			for(int j = 0; j <= i; j++){
 				kfree(kargs[j]);
@@ -143,8 +153,6 @@ sys_execv(userptr_t program, userptr_t args)
 	}
 
 	kprintf("Check 4\n");
-	/* NULL terminated */
-	kargs[argc] = NULL;
 
 	result = vfs_open(copy_program, O_RDONLY, 0, &v);
 	if (result) {
@@ -233,9 +241,6 @@ sys_execv(userptr_t program, userptr_t args)
 		}
 		argptrs[i] = stackptr;
 	}
-	
-	/* NULL terminate */
-	argptrs[argc] = (vaddr_t) NULL;
 
 	kprintf("Check 8\n");
 	stackptr -= ROUNDUP((argc + 1) * sizeof(vaddr_t), 4);
