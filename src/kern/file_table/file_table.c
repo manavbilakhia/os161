@@ -241,17 +241,26 @@ int ft_remove_file(struct file_table *ftable, int fd){
         return -EBADF;
     }
 
-    struct file *file = ftable -> files[fd];
-    VOP_DECREF(target->vn);
-    if(file -> vn -> vn_refcount == 1){
-        file_destroy(file);
-        lock_release(ftable -> lock);
-        return fd;
+    int i;
+    // Check if any other file descriptor is still using the same file (and hence the same vnode)
+    for(i = 0; i < MAX_FILES; i++) {
+        if(i != fd && ftable->files[i] == target) {
+            break;
+        }
+    }
+    // If no other file descriptor is using the same file, decrement the vnode reference count
+    if(i == MAX_FILES) {
+        VOP_DECREF(target->vn);
+    }
+
+    // Only destroy file if there are no more references to it
+    if(target -> vn -> vn_refcount == 0){
+        file_destroy(target);
     }
 
     ftable -> files[fd] = NULL;
+    ftable -> number_files--; // Decrement the number of files
 
-    //lock_destroy(target -> lock); we cannot acquire a lock, destroy it and then try to release it..... so I am removing the locks
     kfree(target);
 
     lock_release(ftable -> lock);
