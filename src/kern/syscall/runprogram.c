@@ -58,6 +58,10 @@ runprogram(char *progname)
 	struct vnode *v;
 	vaddr_t entrypoint, stackptr;
 	int result;
+	//size_t actual;
+	//vaddr_t adj_stack;
+	//char **args;
+	//unsigned int argc;
 
 	/* Open the file. */
 	result = vfs_open(progname, O_RDONLY, 0, &v);
@@ -97,10 +101,26 @@ runprogram(char *progname)
 		return result;
 	}
 
+	
+	//for(int i = 0; i < (int) argc; i++){
+		//result = copyoutstr(args[i], userptr_t adj_stack - (strlen(args[i]) + 1), sizeof(strlen(args[i]) + 1), &actual);
+		//if(result){
+		//	return result;
+		// }
+		// adj_stack -= actual;
+	// }
+
+
+	// struct userptr_t *argv[argc];
+	// result = copyout((const void*) adj_stack, (userptr_t) argv, (size_t) sizeof(args));
+	// if (result){
+		// return result;
+	// }
+	// adj_stack -= sizeof(argv);
+
 	/* Warp to user mode. */
-	enter_new_process(0 /*argc*/, NULL /*userspace addr of argv*/,
-			  NULL /*userspace addr of environment*/,
-			  stackptr, entrypoint);
+	enter_new_process(0, NULL, NULL, stackptr, entrypoint);
+	//add argc and userptr_t adj_stack
 
 	/* enter_new_process does not return. */
 	panic("enter_new_process returned\n");

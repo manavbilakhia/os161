@@ -41,137 +41,70 @@
 #include <kern/limits.h>
 #include <copyinout.h>
 #include <synch.h>
+#include <limits.h>
 
-struct lock *lock;
 
 
-static void free_arg(char ** argv, int argc){
-	for(int j = 0; j < argc; j++){
-		kfree(argv[j]);
-	}
-	kfree(argv);
-}
+// static void free_arg(char ** argv, int argc){
+	// for(int j = 0; j < argc; j++){
+		// kfree(argv[j]);
+	// }
+// }
 
 int
-sys_execv(const char *program, char **args)
+sys_execv(userptr_t program, userptr_t args)
 {
-	
-	struct addrspace *as;
-	struct vnode *v;
-	vaddr_t entrypoint, stackptr;
 	int result;
     
-    char **argv;
     char *copy_program;
 
-    int argc;
+    int argc = 0;
+	char **argv = kmalloc(PATH_MAX);
+	size_t size = 0;
+	userptr_t kargs[PATH_MAX];
 
+	kprintf("starting\n");
     /* Copying in the complex args */
-    for(argc = 0; args[argc]; argc++);
+
+	result = copyin(args, argv, 4);
+	while(argv[argc] != NULL){
+		result = copyin((const_userptr_t) argv[argc], &kargs[argc], 4);
+		if(result){
+			return -result;
+		}
+		argc++;
+	}
+
+	kprintf("Out of while. %d", argc);
 
 	if(argc > __ARG_MAX){
 		return -E2BIG;
 	}
 
-    argv = (char **) kmalloc(sizeof(char **) * argc);
-    if(argv == NULL){
-        return -ENOMEM;
-    }
 
     for(int i = 0; i < argc; i++){
-		argv[i] = kmalloc(sizeof(char *));
-		if(argv[i] == NULL){
-			free_arg(argv, argc);
-			return -ENOMEM;
-		}
-
-        result = copyin((const_userptr_t) args[i], argv[i], (size_t) strlen(args[i]));
+        result = copyinstr((const_userptr_t) kargs[i], (char *) argv[i], PATH_MAX, &size);
         if(result){
-			free_arg(argv, argc);
+			kprintf("uh oh\n");
 			return -result;
         }
+		kprintf("%s\n", argv[i]);
     }
 
+	kprintf("out of loop\n");
 	/* Copying in the program string */
-	copy_program = (char *) kmalloc(sizeof(strlen(program)));
+	copy_program = (char *) kmalloc(PATH_MAX);
 	if(copy_program == NULL){
-		free_arg(argv, argc);
+		kfree(copy_program);
 		return -ENOMEM;
 	}
 
-	result = copyin((const_userptr_t) program, copy_program, strlen(program));
+	result = copyinstr((const_userptr_t) program, copy_program, PATH_MAX, &size);
 	if(result){
-		free_arg(argv, argc);
 		kfree(copy_program);
 		return -result;
 	}
 
-	/* Destroying the old address space */
-	as_destroy(proc_getas());
-
-	/* Open the file. */
-	result = vfs_open((char *) program, O_RDONLY, 0, &v);
-	if (result) {
-		free_arg(argv, argc);
-		kfree(copy_program);
-		return -result;
-	}
-
-	/* We should be a new process. */
-	KASSERT(proc_getas() == NULL);
-
-	/* Create a new address space. */
-	as = as_create();
-	if (as == NULL) {
-		vfs_close(v);
-		free_arg(argv, argc);
-		kfree(copy_program);
-		return -ENOMEM;
-	}
-
-	/* Switch to it and activate it. */
-	proc_setas(as);
-	as_activate();
-
-	/* Load the executable. */
-	result = load_elf(v, &entrypoint);
-	if (result) {
-		/* p_addrspace will go away when curproc is destroyed */
-		vfs_close(v);
-		free_arg(argv, argc);
-		kfree(copy_program);
-		return -result;
-	}
-
-	/* Done with the file now. */
-	vfs_close(v);
-
-	/* Define the user stack in the address space */
-	result = as_define_stack(as, &stackptr);
-	if (result) {
-		/* p_addrspace will go away when curproc is destroyed */
-		free_arg(argv, argc);
-		kfree(copy_program);
-		return -result;
-	}
-
-	char **to_stack = (char **) kmalloc(sizeof(char **) * argc);
-	if(to_stack == NULL){
-		as_destroy(as);
-		free_arg(argv, argc);
-		kfree(copy_program);
-		return -ENOMEM;
-	}
-
-	//Need to add the stack copying here. Also need copy out at some point
-
-	/* Warp to user mode. */
-	//enter_new_process(argc /*argc*/, argv /*userspace addr of argv*/,
-			  //NULL /*userspace addr of environment*/,
-			  //stackptr, entrypoint);
-
-	/* enter_new_process does not return. */
-	panic("enter_new_process returned\n");
-	return -EINVAL;
+	return 0;
 }
 

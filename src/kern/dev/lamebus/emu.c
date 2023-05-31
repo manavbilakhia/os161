@@ -839,7 +839,7 @@ emufs_namefile(struct vnode *v, struct uio *uio)
 		 */
 		return 0;
 	}
-        
+        return ENOSYS;
         char full_path[__PATH_MAX];
         full_path[0] = 0;
         struct vnode * cur_vn = v;
@@ -872,8 +872,8 @@ emufs_namefile(struct vnode *v, struct uio *uio)
               result = VOP_GETTYPE(entry_vn, &mode);
               if (result) goto out;
               if (mode == S_IFDIR && entry_vn == cur_vn) {
-                //kprintf("direntry=%s, offset=%lu, resid=%lu, mode=%x\n", entry,
-                //        (unsigned long int) ku.uio_offset, (unsigned long int) ku.uio_resid, mode);
+                kprintf("direntry=%s, offset=%lu, resid=%lu, mode=%x\n", entry_name,
+                       (unsigned long int) ku.uio_offset, (unsigned long int) ku.uio_resid, mode);
                 if (strlen(full_path) + strlen(entry_name) + 1 + 1 > __PATH_MAX)
                   return ENAMETOOLONG;
                 char tmp_buf[__PATH_MAX];
@@ -881,7 +881,7 @@ emufs_namefile(struct vnode *v, struct uio *uio)
                 tmp_buf[strlen(entry_name)] = '/';
                 strcpy(tmp_buf + strlen(entry_name) + 1, full_path);
                 strcpy(full_path, tmp_buf);
-                //kprintf("full_path=%s\n", full_path);
+                kprintf("full_path=%s\n", full_path);
                 break;
               } else {
                 VOP_DECREF(entry_vn);

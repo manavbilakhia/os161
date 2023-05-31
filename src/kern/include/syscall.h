@@ -101,6 +101,6 @@ sys_dup2(int oldfd, int newfd);
  * Execv system call 
  */
 int
-sys_execv(const char *program, char **args);
+sys_execv(userptr_t program, userptr_t args);
 
 #endif /* _SYSCALL_H_ */
