@@ -101,23 +101,6 @@ runprogram(char *progname)
 		return result;
 	}
 
-	
-	//for(int i = 0; i < (int) argc; i++){
-		//result = copyoutstr(args[i], userptr_t adj_stack - (strlen(args[i]) + 1), sizeof(strlen(args[i]) + 1), &actual);
-		//if(result){
-		//	return result;
-		// }
-		// adj_stack -= actual;
-	// }
-
-
-	// struct userptr_t *argv[argc];
-	// result = copyout((const void*) adj_stack, (userptr_t) argv, (size_t) sizeof(args));
-	// if (result){
-		// return result;
-	// }
-	// adj_stack -= sizeof(argv);
-
 	/* Warp to user mode. */
 	enter_new_process(0, NULL, NULL, stackptr, entrypoint);
 	//add argc and userptr_t adj_stack
