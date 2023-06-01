@@ -14,12 +14,16 @@
 #include <synch.h>
 #include <stat.h>
 #include <spinlock.h>
+#include <endian.h>
 
 off_t
 sys_lseek(int fd, off_t pos, int whence){
     struct stat stat;
     off_t new_pos;
     int ret;
+    off_t pos_64;
+
+    join32to64((uint32_t) fd, (uint32_t) pos, (uint64_t *) &pos_64);
 
     if (fd < 0 || fd >= MAX_FILES) {
         return -EBADF;
@@ -43,16 +47,16 @@ sys_lseek(int fd, off_t pos, int whence){
 
     lock_acquire(file -> lock);
     if(whence == SEEK_SET){
-        new_pos = pos;
+        new_pos = pos_64;
     } else if(whence == SEEK_CUR){
-        new_pos = file -> offset + pos;
+        new_pos = file -> offset + pos_64;
     } else if(whence == SEEK_END){
         ret = VOP_STAT(file -> vn, &stat);
         if(ret){
             lock_release(file -> lock);
             return -ret;
         }
-        new_pos = pos + stat.st_size;
+        new_pos = pos_64 + stat.st_size;
     } else{
         lock_release(file -> lock);
         return -EINVAL;
