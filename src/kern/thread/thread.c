@@ -50,6 +50,8 @@
 #include <addrspace.h>
 #include <mainbus.h>
 #include <vnode.h>
+#include <kern/time.h>
+#include <clock.h>
 
 
 /* Magic number used as a guard value on kernel thread stacks. */
@@ -76,6 +78,13 @@ static struct spinlock thread_count_lock = SPINLOCK_INITIALIZER;
 static struct wchan *thread_count_wchan;
 struct thread **runqueue;  // the runqueue array
 int runqueue_length;  // the number of threads in the runqueue
+
+
+// struct thread *runqueue[100]; // Assuming a maximum of 100 threads for simplicity.
+// int runqueue_length = 0;
+
+int voluntary_context_switches = 0;
+int involuntary_context_switches = 0;
 
 ////////////////////////////////////////////////////////////
 
@@ -853,20 +862,36 @@ thread_yield(void)
  * the current CPU's run queue by job priority.
  */
 
-void
-schedule(void)
-{
+
+// Enqueue thread to run queue
+void enqueue_thread(struct thread* t) {
+    runqueue[runqueue_length] = t;
+    runqueue_length++;
+    gettime(&t->t_enqueue_time);
+}
+
+// Dequeue thread from run queue
+struct thread* dequeue_thread() {
+    struct thread* t = runqueue[0];
+
+    // Shift remaining elements to the left
+    for(int i = 0; i < runqueue_length - 1; i++) {
+        runqueue[i] = runqueue[i+1];
+    }
+    runqueue_length--;
+    
+    return t;
+}
+
+void schedule(void) {
     struct thread *next_thread = NULL;
-    struct thread *current_thread = NULL;
+    struct thread *current_thread = curthread;
+    struct timespec now;
 
-    // Use curthread to get the current running thread
-    current_thread = curthread;
+    gettime(&now); // get the current time
 
-    // Loop over all the threads in the runqueue
     for (int i = 0; i < runqueue_length; i++) {
         struct thread *t = runqueue[i];
-
-        // If this thread is not the current one and (it has a higher priority or next_thread is not set)
         if (t != current_thread && (!next_thread || t->priority < next_thread->priority)) {
             next_thread = t;
         }
@@ -874,6 +899,27 @@ schedule(void)
 
     // If we found a thread with a higher priority, context switch to it
     if (next_thread) {
+        // Record if the context switch is voluntary or involuntary
+        if (current_thread->t_state == S_READY) {
+            current_thread->t_num_involuntary_context_switches++;
+        } else {
+            current_thread->t_num_voluntary_context_switches++;
+        }
+
+        // Record the time at which the thread starts executing
+        next_thread->t_start_time = now;
+
+        // Record the response time of the thread
+        next_thread->t_response_time = now;
+        next_thread->t_response_time.tv_sec -= next_thread->t_enqueue_time.tv_sec;
+        next_thread->t_response_time.tv_nsec -= next_thread->t_enqueue_time.tv_nsec;
+        
+        // Adjust for underflow
+        if (next_thread->t_response_time.tv_nsec < 0) {
+            next_thread->t_response_time.tv_sec--;
+            next_thread->t_response_time.tv_nsec += 1000000000;
+        }
+
         curthread = next_thread;
     }
 }

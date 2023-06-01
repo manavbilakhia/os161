@@ -39,6 +39,7 @@
 #include <array.h>
 #include <spinlock.h>
 #include <threadlist.h>
+#include <kern/time.h>
 
 struct cpu;
 
@@ -81,9 +82,15 @@ struct thread {
 	 */
 
 	char t_name[MAX_NAME_LENGTH];
-	const char *t_wchan_name;	/* Name of wait channel, if sleeping */
-	threadstate_t t_state;		/* State this thread is in */
-	int priority;
+    const char *t_wchan_name;
+    threadstate_t t_state;
+    int priority;
+    int t_num_voluntary_context_switches;
+    int t_num_involuntary_context_switches;
+    struct timespec t_enqueue_time; // Time when thread is added to the run queue
+    struct timespec t_start_time; // Time when the thread starts executing
+    struct timespec t_finish_time; // Time when the thread finishes executing
+    struct timespec t_response_time; // Response time of the thread
 
 	/*
 	 * Thread subsystem internal fields.
@@ -123,6 +130,9 @@ struct thread {
 extern struct thread **runqueue;  // the runqueue array
 extern int runqueue_length;  // the number of threads in the runqueue
 
+void enqueue_thread(struct thread* t);
+
+struct thread* dequeue_thread(void);
 /*
  * Array of threads.
  */
