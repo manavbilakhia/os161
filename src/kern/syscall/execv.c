@@ -65,7 +65,7 @@ sys_execv(userptr_t program, userptr_t args)
 	struct vnode *v;
 	vaddr_t entrypoint, stackptr;
 
-	kprintf("Check 1\n");
+	// kprintf("Check 1\n");
 
 	/* Checking to see if the program is viable */
 	if (program == NULL){
@@ -78,7 +78,7 @@ sys_execv(userptr_t program, userptr_t args)
 		return -ENOMEM;
 	}
 
-	kprintf("Check 2\n");
+	// kprintf("Check 2\n");
 
 	result = copyinstr(program, copy_program, PATH_MAX, &size);
 	if(result){
@@ -106,9 +106,9 @@ sys_execv(userptr_t program, userptr_t args)
 			break;
 		}
 	}
-	kprintf("%d", argc);
+	// kprintf("%d", argc);
 
-	kprintf("Check 3\n");
+	// kprintf("Check 3\n");
 	if(argc > __ARG_MAX){
 		kfree(copy_program);
 		return -E2BIG;
@@ -141,7 +141,7 @@ sys_execv(userptr_t program, userptr_t args)
 			kfree(kargs);
 			return -result;
 		}
-		kprintf("Printing the tmp: %s\n", tmp);
+		// kprintf("Printing the tmp: %s\n", tmp);
 
 		result = copyinstr((const_userptr_t) tmp, kargs[i], PATH_MAX, &size);
 		if(result){
@@ -152,12 +152,12 @@ sys_execv(userptr_t program, userptr_t args)
 			kfree(kargs);
 			return -ENOMEM;
 		}
-		kprintf("Printing the kargs: %s\n", kargs[i]);
+		// kprintf("Printing the kargs: %s\n", kargs[i]);
 	}
 
 	kargs[argc] = NULL;
 
-	 kprintf("Check 4\n");
+	//  kprintf("Check 4\n");
 
 	result = vfs_open(copy_program, O_RDONLY, 0, &v);
 	if (result) {
@@ -170,7 +170,7 @@ sys_execv(userptr_t program, userptr_t args)
 		return -result;
 	}
 
-	kprintf("Before making new address space");
+	// kprintf("Before making new address space");
 	/* Create a new address space. */
 	as = as_create();
 	if (as == NULL) {
@@ -182,7 +182,7 @@ sys_execv(userptr_t program, userptr_t args)
 		return -ENOMEM;
 	}
 
-	kprintf("Check 5\n");
+	// kprintf("Check 5\n");
 	/* Switch to it and activate it. */
 	struct addrspace *old_space = proc_setas(as);
 	as_activate();
@@ -206,7 +206,7 @@ sys_execv(userptr_t program, userptr_t args)
 	/* Don't need old address space */
 	as_destroy(old_space);
 
-	kprintf("Check 6\n");
+	// kprintf("Check 6\n");
 	/* Define the user stack in the address space */
 	result = as_define_stack(as, &stackptr);
 	if (result) {
@@ -230,15 +230,15 @@ sys_execv(userptr_t program, userptr_t args)
 		return -ENOMEM;
 	}
 
-	kprintf("Check 7\n");
+	// kprintf("Check 7\n");
 	for(int i = argc - 1; i >= 0; i--){
 		size_t length = strlen(kargs[i]) + 1;
-		kprintf("Before stackptr roundup\n");
+		// kprintf("Before stackptr roundup\n");
 		stackptr -= ROUNDUP(length, 4);
-		kprintf("Before copyoutstr %d\n", i);
+		// kprintf("Before copyoutstr %d\n", i);
 		result = copyoutstr(kargs[i], (userptr_t) stackptr, length, NULL);
-		kprintf("After copyoutstr %d\n", i);
-		kprintf("Length: %d", length);
+		// kprintf("After copyoutstr %d\n", i);
+		// kprintf("Length: %d", length);
 		
 		if(result){
 			kprintf("This is bad\n");
@@ -248,7 +248,7 @@ sys_execv(userptr_t program, userptr_t args)
 			}
 			kfree(copy_program);
 			kfree(kargs);
-			kprintf("%d", result);
+			// kprintf("%d", result);
 			return -result;
 		}
 		argptrs[i] = stackptr;
@@ -256,7 +256,7 @@ sys_execv(userptr_t program, userptr_t args)
 
 	argptrs[argc] = (vaddr_t) NULL;
 
-	kprintf("Check 8\n");
+	// kprintf("Check 8\n");
 	stackptr -= ROUNDUP((argc + 1) * sizeof(vaddr_t), 4);
 	result = copyout(argptrs, (userptr_t) stackptr, (argc + 1) * sizeof(vaddr_t));
 	if(result){
@@ -275,8 +275,9 @@ sys_execv(userptr_t program, userptr_t args)
 	}
 	kfree(copy_program);
 	kfree(kargs);
+	// kprintf("Execv Run");
 
-	kprintf("About to enter a new process");
+	// kprintf("About to enter a new process\n");
 	/* Warp to user mode. */
 	enter_new_process(argc, (userptr_t) stackptr, NULL, stackptr, entrypoint);
 	//add argc and userptr_t adj_stack
