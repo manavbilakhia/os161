@@ -123,7 +123,7 @@ syscall(struct trapframe *tf)
         break;
 
 		case SYS_fork:
-		retval = sys_fork(tf, (int *) tf->tf_a0); 
+		retval = sys_fork(tf); 
 		if (retval < 0){ err = -retval; }
 		else{ err = 0; }
 		break;

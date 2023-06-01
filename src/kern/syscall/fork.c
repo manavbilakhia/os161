@@ -13,24 +13,22 @@
 
 static void child_proc_handler(void * data1, unsigned long data2);
 
-int sys_fork(struct trapframe *tf_parent, int * return_value){
-    /*
-     * Documentation to be written.
-     */
+int sys_fork(struct trapframe *tf_parent){
     const char *child_name = "child_proc";
     struct proc *child = proc_create(child_name);
     if (child == NULL) { 
         kfree(child);
         return -ENOMEM; 
     }
+    //int tmp_pid = (int)child->process_id;
+    int tmp_pid = 0;
 
     int result_addrcopy = as_copy(curproc->p_addrspace, &child->p_addrspace);
 
     if (result_addrcopy != 0) {
         as_destroy(child->p_addrspace);
         kfree(child);
-        *return_value = -1;
-        return result_addrcopy; 
+        return -result_addrcopy; 
     }
 
     child -> parent_process_id = curproc -> process_id;
@@ -51,11 +49,9 @@ int sys_fork(struct trapframe *tf_parent, int * return_value){
         ft_destroy(child_file_table);
         as_destroy(child->p_addrspace);
         kfree(child);
-        return fork_result; 
+        return -fork_result; 
     } 
-    
-    *return_value = child->process_id;
-    return 0;
+    return tmp_pid;
 }
 
 static void child_proc_handler(void * data1, unsigned long data2){
