@@ -914,10 +914,10 @@ void schedule(void) {
         next_thread->t_response_time.tv_sec -= next_thread->t_enqueue_time.tv_sec;
         next_thread->t_response_time.tv_nsec -= next_thread->t_enqueue_time.tv_nsec;
         
-        // Adjust for underflow
-        if (next_thread->t_response_time.tv_nsec < 0) {
+        // Adjust for underflow (I love stack overflow)
+        if (next_thread->t_response_time.tv_nsec < 0)  {
             next_thread->t_response_time.tv_sec--;
-            next_thread->t_response_time.tv_nsec += 1000000000;
+            next_thread->t_response_time.tv_nsec+=1000000000;
         }
 
         curthread = next_thread;
