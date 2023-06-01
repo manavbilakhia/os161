@@ -51,6 +51,7 @@
 #include <file_table.h>
 #include <synch.h>
 #include <kern/errno.h>
+#include <kern/fcntl.h>
 
 struct file_table *ftable;
 
@@ -156,6 +157,65 @@ int file_create(struct file_table *ftable, char *path, int flags, struct vnode *
     return fd;
 }
 
+/* File table initialize. Will set the first three to STDIN, STDOUT, and STDERR */
+int ft_init(struct file_table *ftable){
+    struct file *file_IN;
+    struct file *file_OUT;
+    struct file *file_ERR;
+    int ret;
+    struct vnode *vn;
+    char *tmp = NULL;
+
+    file_IN = kmalloc(sizeof(struct file));
+    KASSERT(file_IN != NULL);
+    ret = vfs_open(tmp, O_RDONLY, 0, &vn);
+    if(ret){
+        kfree(file_IN);
+        return ret;
+    }
+
+    file_IN -> flags = O_RDONLY;
+    file_IN -> vn = vn;
+    file_IN -> offset = 0;
+    file_IN -> lock = lock_create("stdin_lock");
+
+    ret = ft_add_file(ftable, file_IN);
+
+    file_OUT = kmalloc(sizeof(struct file));
+    KASSERT(file_OUT != NULL);
+    ret = vfs_open(tmp, O_WRONLY, 0, &vn);
+    if(ret){
+        kfree(file_IN);
+        kfree(file_OUT);
+        return ret;
+    }
+
+    file_OUT -> flags = O_WRONLY;
+    file_OUT -> vn = vn;
+    file_OUT -> offset = 0;
+    file_OUT -> lock = lock_create("stdout_lock");
+
+    ret = ft_add_file(ftable, file_OUT);
+
+    file_ERR = kmalloc(sizeof(struct file));
+    KASSERT(file_ERR != NULL);
+    ret = vfs_open(tmp, O_WRONLY, 0, &vn);
+    if(ret){
+        kfree(file_IN);
+        kfree(file_OUT);
+        kfree(file_ERR);
+        return ret;
+    }
+
+    file_ERR -> flags = O_WRONLY;
+    file_ERR -> vn = vn;
+    file_ERR -> offset = 0;
+    file_ERR -> lock = lock_create("stderr_lock");
+
+    ret = ft_add_file(ftable, file_ERR);
+    return 0;
+}
+
 /**
  * Destroys a file
 */
@@ -242,17 +302,26 @@ int ft_remove_file(struct file_table *ftable, int fd){
         return -EBADF;
     }
 
-    struct file *file = ftable -> files[fd];
-    VOP_DECREF(target->vn);
-    if(file -> vn -> vn_refcount == 1){
-        file_destroy(file);
-        lock_release(ftable -> lock);
-        return fd;
+    int i;
+    // Check if any other file descriptor is still using the same file (and hence the same vnode)
+    for(i = 0; i < MAX_FILES; i++) {
+        if(i != fd && ftable->files[i] == target) {
+            break;
+        }
+    }
+    // If no other file descriptor is using the same file, decrement the vnode reference count
+    if(i == MAX_FILES) {
+        VOP_DECREF(target->vn);
+    }
+
+    // Only destroy file if there are no more references to it
+    if(target -> vn -> vn_refcount == 0){
+        file_destroy(target);
     }
 
     ftable -> files[fd] = NULL;
+    ftable -> number_files--; // Decrement the number of files
 
-    //lock_destroy(target -> lock); we cannot acquire a lock, destroy it and then try to release it..... so I am removing the locks
     kfree(target);
 
     lock_release(ftable -> lock);

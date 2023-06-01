@@ -140,7 +140,7 @@ sys_execv(userptr_t program, userptr_t args)
 			kfree(kargs);
 			return -result;
 		}
-		kprintf("%s\n", tmp);
+		kprintf("Printing the tmp: %s\n", tmp);
 
 		result = copyinstr((const_userptr_t) tmp, kargs[i], PATH_MAX, &size);
 		if(result){
@@ -151,7 +151,7 @@ sys_execv(userptr_t program, userptr_t args)
 			kfree(kargs);
 			return -ENOMEM;
 		}
-		kprintf("%s\n", kargs[i]);
+		kprintf("Printing the kargs: %s\n", kargs[i]);
 	}
 
 	// kprintf("Check 4\n");

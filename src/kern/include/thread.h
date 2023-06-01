@@ -83,6 +83,7 @@ struct thread {
 	char t_name[MAX_NAME_LENGTH];
 	const char *t_wchan_name;	/* Name of wait channel, if sleeping */
 	threadstate_t t_state;		/* State this thread is in */
+	int priority;
 
 	/*
 	 * Thread subsystem internal fields.
@@ -118,6 +119,9 @@ struct thread {
 
 	/* add more here as needed */
 };
+// global threadlist
+extern struct thread **runqueue;  // the runqueue array
+extern int runqueue_length;  // the number of threads in the runqueue
 
 /*
  * Array of threads.

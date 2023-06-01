@@ -57,6 +57,7 @@ sys_dup2(int oldfd, int newfd)
     // Increment reference count of vnode 
     VOP_INCREF(oldfile->vn);
     curproc->p_filetable->files[newfd] = oldfile;
+    curproc->p_filetable->number_files++; // Increment the number of files
 
     lock_release(curproc->p_filetable->lock);
 

@@ -74,6 +74,8 @@ static struct semaphore *cpu_startup_sem;
 unsigned thread_count = 0;
 static struct spinlock thread_count_lock = SPINLOCK_INITIALIZER;
 static struct wchan *thread_count_wchan;
+struct thread **runqueue;  // the runqueue array
+int runqueue_length;  // the number of threads in the runqueue
 
 ////////////////////////////////////////////////////////////
 
@@ -854,11 +856,28 @@ thread_yield(void)
 void
 schedule(void)
 {
-	/*
-	 * You can write this. If we do nothing, threads will run in
-	 * round-robin fashion.
-	 */
+    struct thread *next_thread = NULL;
+    struct thread *current_thread = NULL;
+
+    // Use curthread to get the current running thread
+    current_thread = curthread;
+
+    // Loop over all the threads in the runqueue
+    for (int i = 0; i < runqueue_length; i++) {
+        struct thread *t = runqueue[i];
+
+        // If this thread is not the current one and (it has a higher priority or next_thread is not set)
+        if (t != current_thread && (!next_thread || t->priority < next_thread->priority)) {
+            next_thread = t;
+        }
+    }
+
+    // If we found a thread with a higher priority, context switch to it
+    if (next_thread) {
+        curthread = next_thread;
+    }
 }
+
 
 /*
  * Thread migration.

@@ -96,6 +96,8 @@ proc_create(const char *name)
 
 	proc->exit_code = -1;
 	proc -> p_filetable = ft_create();
+	// int ret = ft_init(proc -> p_filetable);
+	// (void) ret;
 
 	return proc;
 }
