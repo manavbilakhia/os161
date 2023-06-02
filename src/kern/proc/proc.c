@@ -89,6 +89,7 @@ proc_create(const char *name)
 	proc->p_cwd = NULL;
 
 	proc->process_id = get_available_pid(global_proc_table);
+
 	add_proc(proc -> process_id, global_proc_table, proc);
 	proc->parent_process_id = -1;
 
