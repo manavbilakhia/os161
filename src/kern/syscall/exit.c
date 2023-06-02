@@ -13,28 +13,31 @@
 #include <proc_table.h>
 #include <spl.h>
 #include <file_table.h>
+#include <kern/wait.h>
 
 
 void 
-sys__exit(int * exitcode){ // THIS FUNCTION IS CURRENTLY BROKEN LIKE ALL HELL
+sys__exit(int exitcode){ 
     /*
      * Removes a process from the table of active processes.
      */
+    struct proc * curproc_stack = curproc;
+    if (curproc == NULL) { panic("missing process for exit call"); }
+    if (curproc_stack == NULL) {panic("failed to make local copy");}
+    curproc_stack -> finished = true;
 
-    /*lock_acquire(waitpidlock);
+    set_exit_code(curproc_stack->process_id, global_proc_table, _MKWAIT_EXIT(exitcode));
 
-    ft_destroy(curproc -> p_filetable); // consider putting this step in proc_destroy
-    cv_broadcast(waitpidcv, waitpidlock);
-    curproc->finished = true;
-    remove_process(global_proc_table, curproc->process_id);
-    *exitcode = 0;
-    thread_exit();
-    proc_destroy(curproc);
+    remove_process(global_proc_table, curproc -> process_id);
 
-    lock_release(waitpidlock); */
+    KASSERT(waitpidlock != NULL);
     
-    KASSERT(curthread != NULL);
-    (void) exitcode;
-    thread_exit();
+    lock_acquire(waitpidlock);
+    proc_remthread(curthread);
+    cv_signal(waitpidcv, waitpidlock);
 
+    KASSERT(curproc_stack != NULL);
+    proc_destroy(curproc_stack);
+    lock_release(waitpidlock);
+    thread_exit();
 }

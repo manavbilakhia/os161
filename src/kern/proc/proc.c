@@ -94,7 +94,6 @@ proc_create(const char *name)
 
 	proc->finished = false; 
 
-	proc->exit_code = -1;
 	proc -> p_filetable = ft_create();
 	// int ret = ft_init(proc -> p_filetable);
 	// (void) ret;
@@ -115,7 +114,7 @@ proc_destroy(struct proc *proc)
 	 * You probably want to destroy and null out much of the
 	 * process (particularly the address space) at exit time if
 	 * your wait/exit design calls for the process structure to
-	 * hang around beyond process exit. Some wait/exit designs
+	 * hang around beyond process exit. Some wait/ exit designs
 	 * do, some don't.
 	 */
 
