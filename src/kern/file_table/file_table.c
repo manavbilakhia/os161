@@ -51,6 +51,7 @@
 #include <file_table.h>
 #include <synch.h>
 #include <kern/errno.h>
+#include <kern/fcntl.h>
 
 struct file_table *ftable;
 
@@ -156,6 +157,65 @@ int file_create(struct file_table *ftable, char *path, int flags, struct vnode *
     return fd;
 }
 
+/* File table initialize. Will set the first three to STDIN, STDOUT, and STDERR */
+int ft_init(struct file_table *ftable){
+    struct file *file_IN;
+    struct file *file_OUT;
+    struct file *file_ERR;
+    int ret;
+    struct vnode *vn;
+    char *tmp = NULL;
+
+    file_IN = kmalloc(sizeof(struct file));
+    KASSERT(file_IN != NULL);
+    ret = vfs_open(tmp, O_RDONLY, 0, &vn);
+    if(ret){
+        kfree(file_IN);
+        return ret;
+    }
+
+    file_IN -> flags = O_RDONLY;
+    file_IN -> vn = vn;
+    file_IN -> offset = 0;
+    file_IN -> lock = lock_create("stdin_lock");
+
+    ret = ft_add_file(ftable, file_IN);
+
+    file_OUT = kmalloc(sizeof(struct file));
+    KASSERT(file_OUT != NULL);
+    ret = vfs_open(tmp, O_WRONLY, 0, &vn);
+    if(ret){
+        kfree(file_IN);
+        kfree(file_OUT);
+        return ret;
+    }
+
+    file_OUT -> flags = O_WRONLY;
+    file_OUT -> vn = vn;
+    file_OUT -> offset = 0;
+    file_OUT -> lock = lock_create("stdout_lock");
+
+    ret = ft_add_file(ftable, file_OUT);
+
+    file_ERR = kmalloc(sizeof(struct file));
+    KASSERT(file_ERR != NULL);
+    ret = vfs_open(tmp, O_WRONLY, 0, &vn);
+    if(ret){
+        kfree(file_IN);
+        kfree(file_OUT);
+        kfree(file_ERR);
+        return ret;
+    }
+
+    file_ERR -> flags = O_WRONLY;
+    file_ERR -> vn = vn;
+    file_ERR -> offset = 0;
+    file_ERR -> lock = lock_create("stderr_lock");
+
+    ret = ft_add_file(ftable, file_ERR);
+    return 0;
+}
+
 /**
  * Destroys a file
 */
@@ -218,6 +278,7 @@ struct file_table *ft_clone(struct file_table *ftable){
 
     for(int i = 0; i < ftable -> number_files + 1; i++){
         ft_add_file(copy, ftable -> files[i]);
+        VOP_INCREF(copy -> files [i] -> vn);
     }
 
     lock_release(ftable -> lock);

@@ -14,57 +14,55 @@
 #include <synch.h>
 #include <stat.h>
 #include <spinlock.h>
+#include <endian.h>
 
 off_t
 sys_lseek(int fd, off_t pos, int whence){
     struct stat stat;
-    struct spinlock lock;
     off_t new_pos;
     int ret;
+    off_t pos_64;
 
-    spinlock_init(&lock);
-    spinlock_acquire(&lock);
+    join32to64((uint32_t) fd, (uint32_t) pos, (uint64_t *) &pos_64);
+
     if (fd < 0 || fd >= MAX_FILES) {
-        spinlock_release(&lock);
         return -EBADF;
     }
 
     struct file *file = curproc->p_filetable->files[fd];
     if(file == NULL){
-        spinlock_release(&lock);
         return -EBADF;
     }
 
     if(!VOP_ISSEEKABLE(file -> vn)){
-        spinlock_release(&lock);
         return -ESPIPE;
     }
 
     if(whence < 0){
-        spinlock_release(&lock);
         return -EINVAL;
     }
     if(pos + whence < 0){
-        spinlock_release(&lock);
         return -EINVAL;
     }
 
+    lock_acquire(file -> lock);
     if(whence == SEEK_SET){
-        new_pos = pos;
+        new_pos = pos_64;
     } else if(whence == SEEK_CUR){
-        new_pos = file -> offset + pos;
+        new_pos = file -> offset + pos_64;
     } else if(whence == SEEK_END){
         ret = VOP_STAT(file -> vn, &stat);
         if(ret){
+            lock_release(file -> lock);
             return -ret;
         }
-        new_pos = pos + stat.st_size;
+        new_pos = pos_64 + stat.st_size;
     } else{
-        spinlock_release(&lock);
+        lock_release(file -> lock);
         return -EINVAL;
     }
 
     file -> offset = new_pos;
-    spinlock_release(&lock);
+    lock_release(file -> lock);
     return new_pos;
 }

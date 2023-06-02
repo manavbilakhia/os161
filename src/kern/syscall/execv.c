@@ -41,126 +41,249 @@
 #include <kern/limits.h>
 #include <copyinout.h>
 #include <synch.h>
+#include <limits.h>
 
-struct lock *lock;
+
+
+// static void free_arg(char ** argv, int argc){
+	// for(int j = 0; j < argc; j++){
+		// kfree(argv[j]);
+	// }
+// }
 
 int
-sys_execv(const char *program, char **args)
+sys_execv(userptr_t program, userptr_t args)
 {
-	lock = lock_create("execv_lock");
-	lock_acquire(lock);
-	
+	int result;
+    
+    char *copy_program;
+
+    int argc;
+	char **kargs;
+	size_t size;
 	struct addrspace *as;
 	struct vnode *v;
 	vaddr_t entrypoint, stackptr;
-	int result;
-    
-    char **argv;
-    char *copy_program;
 
-    int argc = 0;
+	// kprintf("Check 1\n");
 
-    /* Copying in the complex args */
-    while(args[argc] != NULL){
-        argc++;
-    }
+	/* Checking to see if the program is viable */
+	if (program == NULL){
+		return -EFAULT;
+	}
 
+	/* Copying in the program from the user */
+	copy_program = (char *) kmalloc(PATH_MAX);
+	if(copy_program == NULL){
+		return -ENOMEM;
+	}
+
+	// kprintf("Check 2\n");
+
+	result = copyinstr(program, copy_program, PATH_MAX, &size);
+	if(result){
+		kfree(copy_program);
+		return -result;
+	}
+	// kprintf("PROGRAM NAME: %s\n", copy_program);
+
+	/* Checking to see if the args are viable */
+	if(args == NULL){
+		kfree(copy_program);
+		return -EFAULT;
+	}
+
+	/* Getting argc */
+	for(argc = 0; argc < PATH_MAX; argc++){
+		char * tmp;
+		result = copyin(args + argc * sizeof(char*), &tmp, sizeof(char*));
+		if(result){
+			kfree(copy_program);
+			return -result;
+		}
+
+		if(tmp == NULL){
+			break;
+		}
+	}
+	// kprintf("%d", argc);
+
+	// kprintf("Check 3\n");
 	if(argc > __ARG_MAX){
-		lock_release(lock);
+		kfree(copy_program);
 		return -E2BIG;
 	}
 
-    argv = (char **) kmalloc(sizeof(char **) * argc);
-    if(argv == NULL){
-		lock_release(lock);
-        return -ENOMEM;
-    }
-
-    for(int i = 0; i < argc; i++){
-        result = copyin((const_userptr_t) args[i], argv[i], 1); //place holder need to know last parameter for this
-        if(result){
-            kfree(argv);
-			lock_release(lock);
-			return -result;
-        }
-    }
-
-	/* Copying in the program string */
-	copy_program = (char *) kmalloc(sizeof(strlen(program)));
-	if(copy_program == NULL){
-		kfree(argv);
-		lock_release(lock);
+	kargs = kmalloc((argc + 1) * sizeof(char *));
+	if(kargs == NULL){
 		return -ENOMEM;
 	}
 
-	result = copyin((const_userptr_t) program, copy_program, strlen(program));
-	if(result){
-		kfree(argv);
-		kfree(copy_program);
-		lock_release(lock);
-		return -result;
+	/* Copying in the individual pointers */
+	for(int i = 0; i < argc; i++){
+		kargs[i] = kmalloc(PATH_MAX);
+		if(kargs[i] == NULL){
+			for(int j = 0; j < i; j++){
+				kfree(kargs[j]);
+			}
+			kfree(copy_program);
+			kfree(kargs);
+			return -ENOMEM;
+		}
+
+		char * tmp = NULL;
+		result = copyin(args + i * sizeof(char*), &tmp, sizeof(char*));
+		if(result){
+			for(int j = 0; j < i; j++){
+				kfree(kargs[j]);
+			}
+			kfree(copy_program);
+			kfree(kargs);
+			return -result;
+		}
+		// kprintf("Printing the tmp: %s\n", tmp);
+
+		result = copyinstr((const_userptr_t) tmp, kargs[i], PATH_MAX, &size);
+		if(result){
+			for(int j = 0; j <= i; j++){
+				kfree(kargs[j]);
+			}
+			kfree(copy_program);
+			kfree(kargs);
+			return -ENOMEM;
+		}
+		// kprintf("Printing the kargs: %s\n", kargs[i]);
 	}
 
-	/* Open the file. */
-	result = vfs_open((char *) program, O_RDONLY, 0, &v);
+	kargs[argc] = NULL;
+
+	//  kprintf("Check 4\n");
+
+	result = vfs_open(copy_program, O_RDONLY, 0, &v);
 	if (result) {
-		kfree(argv);
+		// kprintf("VFS_OPEN Error\n");
+		for(int i = 0; i < argc; i++){
+				kfree(kargs[i]);
+		}
 		kfree(copy_program);
-		lock_release(lock);
+		kfree(kargs);
 		return -result;
 	}
 
-	/* We should be a new process. */
-	KASSERT(proc_getas() == NULL);
-
+	// kprintf("Before making new address space");
 	/* Create a new address space. */
 	as = as_create();
 	if (as == NULL) {
-		vfs_close(v);
-		kfree(argv);
+		for(int i = 0; i < argc; i++){
+			kfree(kargs[i]);
+		}
 		kfree(copy_program);
-		lock_release(lock);
+		kfree(kargs);
 		return -ENOMEM;
 	}
 
+	// kprintf("Check 5\n");
 	/* Switch to it and activate it. */
-	proc_setas(as);
+	struct addrspace *old_space = proc_setas(as);
 	as_activate();
 
 	/* Load the executable. */
 	result = load_elf(v, &entrypoint);
+	vfs_close(v);
 	if (result) {
 		/* p_addrspace will go away when curproc is destroyed */
-		vfs_close(v);
-		kfree(argv);
+		as_deactivate();
+		as = proc_setas(old_space);
+		as_destroy(as);
+		for(int i = 0; i < argc; i++){
+			kfree(kargs[i]);
+		}
 		kfree(copy_program);
-		lock_release(lock);
+		kfree(kargs);
 		return -result;
 	}
 
-	/* Done with the file now. */
-	vfs_close(v);
+	/* Don't need old address space */
+	as_destroy(old_space);
 
+	// kprintf("Check 6\n");
 	/* Define the user stack in the address space */
 	result = as_define_stack(as, &stackptr);
 	if (result) {
 		/* p_addrspace will go away when curproc is destroyed */
-		kfree(argv);
+		for(int i = 0; i < argc; i++){
+			kfree(kargs[i]);
+		}
 		kfree(copy_program);
-		lock_release(lock);
+		kfree(kargs);
 		return -result;
 	}
 
-	//Need to add the stack copying here. Also need copy out at some point
+	/* Copying from kernel to user space */
+	vaddr_t *argptrs = kmalloc((argc + 1) * sizeof(vaddr_t));
+	if(argptrs == NULL){
+		for(int i = 0; i < argc; i++){
+			kfree(kargs[i]);
+		}
+		kfree(copy_program);
+		kfree(kargs);
+		return -ENOMEM;
+	}
 
+	// kprintf("Check 7\n");
+	for(int i = argc - 1; i >= 0; i--){
+		size_t length = strlen(kargs[i]) + 1;
+		// kprintf("Before stackptr roundup\n");
+		stackptr -= ROUNDUP(length, 4);
+		// kprintf("Before copyoutstr %d\n", i);
+		result = copyoutstr(kargs[i], (userptr_t) stackptr, length, NULL);
+		// kprintf("After copyoutstr %d\n", i);
+		// kprintf("Length: %d", length);
+		
+		if(result){
+			kprintf("This is bad\n");
+			kfree(argptrs);
+			for(int i = 0; i < argc; i++){
+				kfree(kargs[i]);
+			}
+			kfree(copy_program);
+			kfree(kargs);
+			// kprintf("%d", result);
+			return -result;
+		}
+		argptrs[i] = stackptr;
+	}
+
+	argptrs[argc] = (vaddr_t) NULL;
+
+	// kprintf("Check 8\n");
+	stackptr -= ROUNDUP((argc + 1) * sizeof(vaddr_t), 4);
+	result = copyout(argptrs, (userptr_t) stackptr, (argc + 1) * sizeof(vaddr_t));
+	if(result){
+			kfree(argptrs);
+			for(int i = 0; i < argc; i++){
+				kfree(kargs[i]);
+			}
+			kfree(copy_program);
+			kfree(kargs);
+			return -result;
+	}
+
+	kfree(argptrs);
+	for(int i = 0; i < argc; i++){
+		kfree(kargs[i]);
+	}
+	kfree(copy_program);
+	kfree(kargs);
+	// kprintf("Execv Run");
+
+	// kprintf("About to enter a new process\n");
 	/* Warp to user mode. */
-	//enter_new_process(argc /*argc*/, argv /*userspace addr of argv*/,
-			  //NULL /*userspace addr of environment*/,
-			  //stackptr, entrypoint);
+	enter_new_process(argc, (userptr_t) stackptr, NULL, stackptr, entrypoint);
+	//add argc and userptr_t adj_stack
 
 	/* enter_new_process does not return. */
 	panic("enter_new_process returned\n");
-	lock_release(lock);
 	return -EINVAL;
 }
 

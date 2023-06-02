@@ -839,7 +839,6 @@ emufs_namefile(struct vnode *v, struct uio *uio)
 		 */
 		return 0;
 	}
-
         struct vnode * cur_vn = v;
         struct vnode * parent_vn = NULL;
         struct vnode * entry_vn = NULL;
