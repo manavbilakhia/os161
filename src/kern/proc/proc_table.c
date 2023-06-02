@@ -24,7 +24,6 @@ void proc_table_create(void){
 
     for (int i = 0; i < 2; i++){ for (int k = 0; k < MAX_ACTIVE_PROCS; k++){  
             global_proc_table -> exit_code_map[i][k].pid = -1;
-            //global_proc_table -> exit_code_map[i][k].exitcode = NULL; // do i need this?
         }
     }
 }
@@ -60,7 +59,7 @@ int add_proc(pid_t pid, struct proc_table *pt, struct proc * p){
 
     pt -> proc_table_map[pid] = p;
     pt -> active_procs++;
-
+    pt -> next_available_pid++;
     spinlock_release(&pt -> pt_lock);
 
     return 0;
@@ -90,17 +89,18 @@ pid_t get_available_pid(struct proc_table *pt){
     /*
     Gets the next available pid
     */
-    KASSERT(pt != NULL);
-    spinlock_acquire(&pt->pt_lock);
+    // KASSERT(pt != NULL);
+    // spinlock_acquire(&pt->pt_lock);
 
-    for (int j = 2; j < MAX_ACTIVE_PROCS; j++){
-        if (pt -> proc_table_map[j] == NULL){
-            spinlock_release(&pt->pt_lock);
-            return j;
-        }
-    }
-    spinlock_release(&pt->pt_lock);
-    return -1; // need to define proper error in errno.h
+    // for (int j = 2; j < MAX_ACTIVE_PROCS; j++){
+    //     if (pt -> proc_table_map[j] == NULL){
+    //         spinlock_release(&pt->pt_lock);
+    //         return j;
+    //     }
+    // }
+    // spinlock_release(&pt->pt_lock);
+    // return -1; // need to define proper error in errno.h
+    return pt->next_available_pid;
 }
 
 struct proc * remove_process(struct proc_table *pt, pid_t pid){

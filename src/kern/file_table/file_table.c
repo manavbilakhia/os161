@@ -250,6 +250,12 @@ int ft_add_file(struct file_table *ftable, struct file *file){
         lock_release(ftable -> lock);
         return -ENFILE;
     }
+    if(file == NULL){
+        ftable -> files[fd] = NULL;
+        lock_release(ftable -> lock);
+        return fd;
+    }
+    
     ftable -> files[fd] = file;
     ftable -> number_files++;
     lock_release(ftable -> lock);
@@ -276,7 +282,7 @@ struct file_table *ft_clone(struct file_table *ftable){
     lock_acquire(ftable -> lock);
     struct file_table *copy = ft_create();
 
-    for(int i = 0; i < ftable -> number_files + 1; i++){
+    for(int i = 0; i < ftable -> number_files; i++){
         ft_add_file(copy, ftable -> files[i]);
         VOP_INCREF(copy -> files [i] -> vn);
     }

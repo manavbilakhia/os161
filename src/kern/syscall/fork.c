@@ -1,5 +1,5 @@
-#include <syscall.h>
 #include <types.h>
+#include <syscall.h>
 #include <proc.h>
 #include <proc_table.h>
 #include <addrspace.h>
@@ -13,15 +13,14 @@
 
 static void child_proc_handler(void * data1, unsigned long data2);
 
-int sys_fork(struct trapframe *tf_parent){
+pid_t sys_fork(struct trapframe *tf_parent){
     const char *child_name = "child_proc";
     struct proc *child = proc_create(child_name);
     if (child == NULL) { 
         kfree(child);
         return -ENOMEM; 
     }
-    //int tmp_pid = (int)child->process_id;
-    int tmp_pid = 0;
+    pid_t tmp_pid = child->process_id;
 
     int result_addrcopy = as_copy(curproc->p_addrspace, &child->p_addrspace);
 
@@ -42,6 +41,7 @@ int sys_fork(struct trapframe *tf_parent){
     }
 
     struct file_table * child_file_table = ft_clone(curproc->p_filetable);
+    child->p_filetable = child_file_table;
 
     int fork_result = thread_fork("creating new proc", child, child_proc_handler, tf_child, (unsigned long) child -> p_addrspace);
     if (fork_result != 0) { 
@@ -51,20 +51,17 @@ int sys_fork(struct trapframe *tf_parent){
         kfree(child);
         return -fork_result; 
     } 
-    return tmp_pid;
+    return (int) tmp_pid;
 }
 
 static void child_proc_handler(void * data1, unsigned long data2){
-    /*
-     * Documentation to be written.
-     */
     struct trapframe *tf_child;
     tf_child = (struct trapframe *) data1;
     unsigned long address_space_child = data2;
     
     curproc->p_addrspace = (struct addrspace * ) address_space_child;
     KASSERT(curproc->p_addrspace != NULL);
-
+    as_activate();
     tf_child -> tf_a3 = 0;
     tf_child -> tf_v0 = 0;
     tf_child -> tf_epc += 4;

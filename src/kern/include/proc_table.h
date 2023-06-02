@@ -15,7 +15,7 @@ struct proc_table{
     */
     struct spinlock pt_lock; // lock for synchronization
     volatile int active_procs; // number of active processes
-
+    volatile int next_available_pid;
     struct proc* proc_table_map[MAX_ACTIVE_PROCS];
 
     struct{
