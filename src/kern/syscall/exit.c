@@ -25,6 +25,7 @@ sys__exit(int exitcode){
     if (curproc == NULL) { panic("missing process for exit call"); }
     if (curproc_stack == NULL) {panic("failed to make local copy");}
     curproc_stack -> finished = true;
+   //ft_destroy(curproc_stack->p_filetable);
 
     set_exit_code(curproc_stack->process_id, global_proc_table, _MKWAIT_EXIT(exitcode));
 

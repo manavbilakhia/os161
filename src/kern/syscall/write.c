@@ -42,7 +42,7 @@ sys_write(int fd, const void *buf, size_t nbytes){
         kfree(buffer);
         return -EBADF;
     }
-    if (fd == STDOUT_FILENO || fd == STDERR_FILENO) { //add a putch somewhere
+    if (fd == STDOUT_FILENO || fd == STDERR_FILENO) {
         size_t i;
 
         for (i = 0; i < nbytes; i++) {

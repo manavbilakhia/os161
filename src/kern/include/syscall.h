@@ -34,6 +34,7 @@
 #include <cdefs.h> /* for __DEAD */
 #include <types.h>
 struct trapframe; /* from <machine/trapframe.h> */
+struct stat;
 
 /*
  * The system call dispatcher.
@@ -101,6 +102,9 @@ sys_dup2(int oldfd, int newfd);
  * Execv system call 
  */
 int
-sys_execv(const char *program, char **args);
+sys_execv(userptr_t program, userptr_t args);
+
+int
+sys_fstat(int fd, userptr_t statbuf);
 
 #endif /* _SYSCALL_H_ */

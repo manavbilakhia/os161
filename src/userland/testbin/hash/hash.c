@@ -81,3 +81,33 @@ main(int argc, char *argv[])
 
 	return 0;
 }
+//#include <unistd.h>
+//#include <stdio.h>
+//#include <test.h>
+//
+//int main() {
+//    int oldfd = 1; // STDOUT
+//    int newfd = 3; // Arbitrary number greater than 2 (STDERR)
+//
+//    char original_msg[] = "This should print to the console.\n";
+//    char duplicate_msg[] = "This should also print to the console.\n";
+//
+//    // Write original message to STDOUT
+//    int val = write(oldfd, original_msg, sizeof(original_msg));
+//	printf("val1 \n");
+//	printf("%d", val); //35
+//    // Duplicate the file descriptor
+//    int result = dup2(oldfd, newfd);
+//    if (result < 0) {
+//        printf("dup2 syscall failed!\n");
+//		printf("%d", errno);
+//        return -1;
+//    }
+//
+//    // Write duplicate message to the new file descriptor
+//    // Because newfd is a copy of oldfd, this should also print to STDOUT
+//    val = write(newfd, duplicate_msg, sizeof(duplicate_msg));
+//	printf("val2 \n");
+//	printf("%d", val);
+//    return 0;
+//}

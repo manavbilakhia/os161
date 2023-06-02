@@ -42,6 +42,7 @@ pid_t sys_fork(struct trapframe *tf_parent){
 
     struct file_table * child_file_table = ft_clone(curproc->p_filetable);
     child->p_filetable = child_file_table;
+
     int fork_result = thread_fork("creating new proc", child, child_proc_handler, tf_child, (unsigned long) child -> p_addrspace);
     if (fork_result != 0) { 
         kfree(tf_child);

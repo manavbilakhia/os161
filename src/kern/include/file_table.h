@@ -66,6 +66,7 @@ int ft_remove_file(struct file_table *ft, int fd);
 int ft_look_up(struct file_table *ft, int fd);
 int file_seek(struct file_table *ft, int fd);
 struct file_table *ft_clone(struct file_table *ftable);
+int ft_init(struct file_table *ftable);
 //struct file *ft_get_file(struct file_table *ft, int fd);
 
 
