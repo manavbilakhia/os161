@@ -1,0 +1,58 @@
+﻿Caleb L’Italien
+John Collins
+Manav Bilakhia
+File Table (JC and MB):
+* Fully implemented, gets tested when syscall tests are run
+execv() (JC):
+* Fully implemented
+* 10
+getcwd() (JC):
+* Mostly implemented.
+* 2
+close() (JC):
+* Mostly implemented
+* 2
+lseek() (JC):
+* Mostly implemented but does not handle standard files
+* 2
+Process Table (CL):
+* Fully implemented
+* Tested with personally implemented tests
+getPid() (CL):
+* Fully implemented
+fork() (CL):
+* Partially implemented. Crashes with forktest, but the OS passes other tests that rely on it. 
+PCB (CL):
+* Fully implemented. 
+_exit() (CL)
+* Fully implemented.
+waitpid() (CL)
+* Partially implemented. Crashes with badcall, but the OS passes other tests that rely on it.
+open() (MB)
+* Fully implemented
+* Test with open test, farm, hog, badcall
+read() (MB)
+* Fully implemented
+* Test with conman, tictac, readwritetest, badcall, farm
+* Shell works smoothly
+* Menu instructions are read in properly
+write() (MB)
+* Fully implemented
+* Test with add, argtest, bigfile, kitchen, conman, palin, factorial, farm, guzzle
+* Shell works smoothly
+* Menu instructions are displayed properly
+chdir() (MB)
+* Fully implemented 
+* Test on shell and cat into files
+dup2() (MB)
+* Best implementation to my knowledge
+* Cannot test using redirect and psort as lseek and close are implemented fully
+
+
+fstat() (MB)
+* Partial implementation, some badcall fails 
+* Cannot test using poisondisk, psort, frack as  lseek and close are implemented fully
+Scheduling(MB)
+* Fully implemented
+* Test with hog
+* Test with all linked list tests, lock tests, cs tests, and semaphore tests. Nothing breaks
